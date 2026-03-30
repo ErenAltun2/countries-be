@@ -4,9 +4,15 @@ spring:
     username: postgres
     password: p.postgres
   jpa:
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    database-platform: org.hibernate.dialect.PostgreSQLDialect # Bu, Java kodunun PostgreSQL diline çevrilmesini sağlar
     hibernate:
       ddl-auto: update
     properties:
       hibernate:
         show_sql: false #sql kodları konsol da gorunmemesı ıcın kullanılır.
+
+#hıbernate : Java sınıflarınız (Nesneler) ile SQL tablolarınız (İlişkisel Veritabanı) arasında bir köprü kurar.
+
+#JPA: "Şu şekilde yazmalısın" diyen kural kitabıdır.
+#
+#Hibernate: O kurallara göre yazılmış kodu alıp veritabanına "anlatan" tercümandır.

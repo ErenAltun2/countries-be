@@ -5,3 +5,7 @@ spring:
     active: dev
 #eger port degıstırmek ısteseydık server:
 # port:8181  seklınde kullanabılırdık.
+
+logging:
+  level:
+    root: info
