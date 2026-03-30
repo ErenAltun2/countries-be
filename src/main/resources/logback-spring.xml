@@ -34,7 +34,7 @@
             <appender-ref ref="CONSOLE"/>
             <appender-ref ref="FILE-ROLLING"/>
         </root>
-        <root name="com.erenaltun" level="error">
+        <root name="org.erenaltun.countriesbe" level="error">
             <appender-ref ref="CONSOLE"/>
             <appender-ref ref="FILE-ROLLING"/>
         </root>
@@ -42,13 +42,13 @@
             <appender-ref ref="CONSOLE"/>
             <appender-ref ref="FILE-ROLLING"/>
         </root>
-        <logger name="com.erenaltun" additivity="false" level="trace">
+        <logger name="org.erenaltun.countriesbe" additivity="false" level="trace">
             <appender-ref ref="FILE-ROLLING"/>
         </logger>
-        <logger name="com.erenaltun" level="debug">
+        <logger name="org.erenaltun.countriesbe" level="debug">
             <appender-ref ref="CONSOLE"/>
         </logger>
-        <logger name="com.erenaltun" level="info">
+        <logger name="org.erenaltun.countriesbe" level="info">
             <appender-ref ref="CONSOLE"/>
             <appender-ref ref="FILE-ROLLING"/>
         </logger>
@@ -61,13 +61,13 @@
         <root level="warn">
             <appender-ref ref="FILE-ROLLING"/>
         </root>
-        <logger name="com.erenaltun" additivity="false" level="trace">
+        <logger name="org.erenaltun.countriesbe" additivity="false" level="trace">
             <appender-ref ref="FILE-ROLLING"/>
         </logger>
-        <logger name="com.erenaltun" additivity="false" level="debug">
+        <logger name="org.erenaltun.countriesbe" additivity="false" level="debug">
             <appender-ref ref="FILE-ROLLING"/>
         </logger>
-        <logger name="com.erenaltun" additivity="false" level="info">
+        <logger name="org.erenaltun.countriesbe" additivity="false" level="info">
             <appender-ref ref="FILE-ROLLING"/>
         </logger>
     </springProfile>
