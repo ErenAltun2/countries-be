@@ -2,4 +2,6 @@ spring:
   application:
     name: countries-be
   profiles:
-    active: devs
+    active: dev
+#eger port degıstırmek ısteseydık server:
+# port:8181  seklınde kullanabılırdık.
