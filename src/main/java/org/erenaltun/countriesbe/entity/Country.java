@@ -20,6 +20,7 @@ public class Country {
     @Column(unique = true)
     private Long id;
 
+    @Column(unique=true)
     private String code;
 
     private String name;

@@ -13,5 +13,7 @@ public class Api {
 
         public static final String INSERT_ALL="/insertAll";
 
+        public static final String INSERT_COUNTRY="/insert";
+
     }
 }
