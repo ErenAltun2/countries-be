@@ -15,5 +15,10 @@ public class Api {
 
         public static final String INSERT_COUNTRY="/insert";
 
+        public static final String GET_COUNTRY="/getcountry/{code}";
+
+        public static final String DELETE_COUNTRY="/deletecountry/{code}";
+
+        public static final String PUT_COUNTRY="/putcountry/{code}/{name}";
     }
 }

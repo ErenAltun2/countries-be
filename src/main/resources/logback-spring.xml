@@ -6,18 +6,12 @@
 
     <appender name="FILE-ROLLING" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${LOG_FILE}</file>
-
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
             <fileNamePattern>log/archived/app.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
-            <!-- each archived file, size max 100KB -->
             <maxFileSize>100KB</maxFileSize>
-            <!-- total size of all archive files, if total size > 20MB,
-				it will delete old archived file (QUEUE) -->
             <totalSizeCap>20MB</totalSizeCap>
-            <!-- keep 60 days -->
             <maxHistory>60</maxHistory>
         </rollingPolicy>
-
         <encoder>
             <pattern>%d %p %c{1} [%t] %m%n</pattern>
         </encoder>
@@ -30,25 +24,17 @@
     </appender>
 
     <springProfile name="dev">
-        <root level="error">
-            <appender-ref ref="CONSOLE"/>
-            <appender-ref ref="FILE-ROLLING"/>
-        </root>
-        <root name="org.erenaltun.countriesbe" level="error">
-            <appender-ref ref="CONSOLE"/>
-            <appender-ref ref="FILE-ROLLING"/>
-        </root>
         <root level="warn">
             <appender-ref ref="CONSOLE"/>
             <appender-ref ref="FILE-ROLLING"/>
         </root>
-        <logger name="org.erenaltun.countriesbe" additivity="false" level="trace">
+
+        <logger name="org.erenaltun.countriesbe" level="info" additivity="false">
+            <appender-ref ref="CONSOLE"/>
             <appender-ref ref="FILE-ROLLING"/>
         </logger>
-        <logger name="org.erenaltun.countriesbe" level="debug">
-            <appender-ref ref="CONSOLE"/>
-        </logger>
-        <logger name="org.erenaltun.countriesbe" level="info">
+
+        <logger name="org.erenaltun.countriesbe" level="debug" additivity="false">
             <appender-ref ref="CONSOLE"/>
             <appender-ref ref="FILE-ROLLING"/>
         </logger>
@@ -58,16 +44,8 @@
         <root level="error">
             <appender-ref ref="FILE-ROLLING"/>
         </root>
-        <root level="warn">
-            <appender-ref ref="FILE-ROLLING"/>
-        </root>
-        <logger name="org.erenaltun.countriesbe" additivity="false" level="trace">
-            <appender-ref ref="FILE-ROLLING"/>
-        </logger>
-        <logger name="org.erenaltun.countriesbe" additivity="false" level="debug">
-            <appender-ref ref="FILE-ROLLING"/>
-        </logger>
-        <logger name="org.erenaltun.countriesbe" additivity="false" level="info">
+
+        <logger name="org.erenaltun.countriesbe" level="info" additivity="false">
             <appender-ref ref="FILE-ROLLING"/>
         </logger>
     </springProfile>

@@ -1,0 +1,22 @@
+#tum ulkelerı ekrana yazdırır
+###
+GET http://localhost:8181/api/country
+
+#tum ulkelerı json dosyasından okur ekrana yazdırır
+###
+POST http://localhost:8181/api/country/insertAll
+
+#tek ulke bilgisini kaydetmemızı saglar
+###
+POST http://localhost:8181/api/country/insert
+
+#     //butun ulkelerı getırme vardı sımdı kullanıcıdan code alınan ulkenın bılgılerını getıren yapalım
+###
+GET http://localhost:8181/api/country/getcountry/{code}
+# code vasıtasıyla ulkeyı sılmemızı saglar
+###
+DELETE http://localhost:8181/api/country/deletecountry/{code}
+
+# code ıle ulkenın ısmını degıstırebılıyoruz.
+###
+PUT http://localhost:8181/api/country/putcountry/{code}/{name}

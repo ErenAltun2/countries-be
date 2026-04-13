@@ -24,7 +24,16 @@ public class GlobalExceptionHandler {
         String message = messageService.getMessage(ex.getMessage(), LocaleContextHolder.getLocale());
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
                 GenericResponse.builder().success(false).message(message).data(LocaleContextHolder.getLocale().toString()).build()
+        ); //:TODO ınternal server error kısmını duzelt
+    }
+
+    @ExceptionHandler(NotFoundException.class)
+    public ResponseEntity<GenericResponse<Object>>handleNotFound(NotFoundException ex){
+        String message = messageService.getMessage(ex.getMessage(), LocaleContextHolder.getLocale());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                GenericResponse.builder().success(false).message(message).data("").build() //düzelt data kısmını
         );
     }
+        //TODO :diğer hatalarıda ekle runtıme hatalarını vs.
 }
 

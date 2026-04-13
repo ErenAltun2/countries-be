@@ -6,10 +6,6 @@ spring:
 #eger port degıstırmek ısteseydık server:
 # port:8181  seklınde kullanabılırdık.
 server:
+  port: 8181
   servlet:
     context-path: /api  #erısmek ısteyenler api uzantısını vermesı gerekıyor bu sayede bız api java da ve country controller da belırtmeme gerek yok.
-
-
-logging:
-  level:
-    root: info
