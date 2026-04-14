@@ -1,5 +1,6 @@
 package org.erenaltun.countriesbe.service.interfaces;
 
+import org.erenaltun.countriesbe.dto.CountryDto;
 import org.erenaltun.countriesbe.entity.Country;
 
 import java.util.List;
@@ -7,9 +8,16 @@ import java.util.Optional;
 
 public interface ICountryService {
     List<Country>getAllCountries();
-    List<Country>insertCountries();
-    Country insertCountry(Country country);
-    Country getCountry(String code);
-    Country deleteCountry(String code);
-    Country convertCountry(String code , String name);
+    List<CountryDto>insertCountries();
+    CountryDto insertCountry(CountryDto country);
+    CountryDto getCountry(String code);
+    CountryDto deleteCountry(String code);
+    CountryDto convertCountry(String code , String name);
+    CountryDto getCountryId(Long id);
+    CountryDto getCountryName(String name);
+    List<String> getAllCountriesName();
+    List<CountryDto>getPhoneCountry(int phone);
+    List<CountryDto>getContinentCountry(String continent);
+    List<CountryDto> getCountryLanguage(String language);
+
 }

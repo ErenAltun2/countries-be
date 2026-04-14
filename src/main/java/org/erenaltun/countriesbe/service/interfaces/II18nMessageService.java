@@ -5,6 +5,6 @@ import java.util.Objects;
 
 public interface II18nMessageService {
 
-    String getMessage(String code, Locale locale , Objects... args);
+    String getMessage(String code, Locale locale , Object... args);
 
 }

@@ -22,16 +22,18 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(AlreadyExistsException.class) //hangı tur exceptıonları yakalasın ona bakıyor CountryAlreadyExceptıon zaten AlreadyExceptıonun  oglu
     public ResponseEntity<GenericResponse<Object>>handleAlreadyExistsException(AlreadyExistsException ex){
         String message = messageService.getMessage(ex.getMessage(), LocaleContextHolder.getLocale());
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
-                GenericResponse.builder().success(false).message(message).data(LocaleContextHolder.getLocale().toString()).build()
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(
+                GenericResponse.builder().success(false).message(message).data(LocalDateTime.now().toString()).build()
         ); //:TODO ınternal server error kısmını duzelt
     }
 
     @ExceptionHandler(NotFoundException.class)
     public ResponseEntity<GenericResponse<Object>>handleNotFound(NotFoundException ex){
         String message = messageService.getMessage(ex.getMessage(), LocaleContextHolder.getLocale());
+        //LocaleContextHolder.getLocale()  bunu kullanarak otomatık olarak o esnadakı dil ne ise onu alıyoruz.
+        //Normal akışta (Controller) parametre ile almak daha pratik, olağanüstü durumlarda (ExceptionHandler) ise Context'ten çekmek daha garantidir
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                GenericResponse.builder().success(false).message(message).data("").build() //düzelt data kısmını
+                GenericResponse.builder().success(false).message(message).data(LocalDateTime.now().toString()).build() //düzelt data kısmını
         );
     }
         //TODO :diğer hatalarıda ekle runtıme hatalarını vs.

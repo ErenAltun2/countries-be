@@ -11,11 +11,12 @@ import java.util.Objects;
 @Service
 @RequiredArgsConstructor
 public class I18nMessageService implements II18nMessageService {
+    //Bana şu anahtarın, şu dildeki karşılığını getir dememızı sağlar
 
     private final MessageSource messageSource;
 
     @Override
-    public String getMessage(String code, Locale locale , Objects... args){
+    public String getMessage(String code, Locale locale , Object... args){
         return messageSource.getMessage(code,args,locale);
     }
 

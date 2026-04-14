@@ -4,6 +4,8 @@ import org.erenaltun.countriesbe.dto.CountryDto;
 import org.erenaltun.countriesbe.entity.Country;
 import org.mapstruct.Mapper;
 
+import java.util.List;
+
 
 @Mapper(componentModel = "spring")
 public interface ICountryMapper {
@@ -11,6 +13,9 @@ public interface ICountryMapper {
     Country toCountry(CountryDto countryDto);
 
     CountryDto fromCountry(Country country);
+
+    List<CountryDto> fromCountryList(List<Country> countries);
+
 
 //    public Country fromCountryDto(CountryDto countryDto){
 //            return Country.builder()

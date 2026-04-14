@@ -13,4 +13,8 @@ public class GenericResponse <T>{
     private String message;
     private T data;
 
+    // <T> yazmanın anlamı
+//   bazen data liste bazen string bazen CountryDto seklınde donuyor her bırı ıcın farklı sınıf olusturmak yerıne
+    //generıc response sınıfına dıyorum kı bu data nın tıpını daha bılmıyorum kodu yazarken sana soyleyecegım söz verıyorum
+    // bu yuzden class ın basında verdıgım soz ıcın oraya placeholder koyuyorum.
 }
