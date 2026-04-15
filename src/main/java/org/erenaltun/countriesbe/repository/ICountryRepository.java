@@ -3,8 +3,11 @@ package org.erenaltun.countriesbe.repository;
 import jakarta.transaction.Transactional;
 import org.erenaltun.countriesbe.dto.CountryDto;
 import org.erenaltun.countriesbe.entity.Country;
+import org.erenaltun.countriesbe.entity.Language;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -24,6 +27,8 @@ public interface ICountryRepository extends JpaRepository<Country,Long> {
 
     List<Country>findByContinent(String continent);
 
-    List<Country>findByLanguage(String language);
+    //jpql sorgusu   burada query yazdık countrylanguages ın ıcınde language degıskenı country de lıste seklınde oldugu ıcın where de fıltrelerken yaptıgım gıbı . koyup dıger sınıfa atlayamıyorum.
+    @Query("SELECT c FROM Country c JOIN c.countryLanguages cl WHERE cl.language.code = :langCode")
+    List<Country> findCountriesByLanguageCode(@Param("langCode") String langCode);
 
 }

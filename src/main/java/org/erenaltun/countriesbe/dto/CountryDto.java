@@ -3,6 +3,8 @@ package org.erenaltun.countriesbe.dto;
 
 import lombok.*;
 
+import java.util.List;
+
 @Getter
 @Setter
 @Builder
@@ -27,7 +29,7 @@ public class CountryDto {
 
     private String currency;
 
-    private String language;
+    private List<LanguageDto> languages;
 
     private String flag;
 }

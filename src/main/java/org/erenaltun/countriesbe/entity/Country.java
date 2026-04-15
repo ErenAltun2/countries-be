@@ -6,7 +6,7 @@ import lombok.*;
 import java.util.List;
 
 @Entity
-@Table
+@Table(name="countries")
 @Getter
 @Setter
 @Builder
@@ -16,8 +16,8 @@ import java.util.List;
 public class Country {
 
     @Id
-    @GeneratedValue
-    @Column(unique = true)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(unique = true, nullable = false)
     private Long id;
 
     @Column(unique=true)
@@ -35,10 +35,10 @@ public class Country {
 
     private String currency;
 
-    private String language;
-
     private String flag;
-    //private List<Language>language;
+
+    @OneToMany(mappedBy = "country", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<CountryLanguage> countryLanguages;
 
 }
 

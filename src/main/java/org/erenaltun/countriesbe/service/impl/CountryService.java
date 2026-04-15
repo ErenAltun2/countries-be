@@ -3,6 +3,8 @@ package org.erenaltun.countriesbe.service.impl;
 import lombok.RequiredArgsConstructor;
 import org.erenaltun.countriesbe.dto.CountryDto;
 import org.erenaltun.countriesbe.entity.Country;
+import org.erenaltun.countriesbe.entity.CountryLanguage;
+import org.erenaltun.countriesbe.entity.Language;
 import org.erenaltun.countriesbe.exception.ContinentNotFoundException;
 import org.erenaltun.countriesbe.exception.CountryAlreadyExistsException;
 import org.erenaltun.countriesbe.exception.CountryNotFoundException;
@@ -10,8 +12,10 @@ import org.erenaltun.countriesbe.exception.LanguageNotFoundException;
 import org.erenaltun.countriesbe.initializer.CountryInitializer;
 import org.erenaltun.countriesbe.mapper.ICountryMapper;
 import org.erenaltun.countriesbe.repository.ICountryRepository;
+import org.erenaltun.countriesbe.repository.ILanguageRepository;
 import org.erenaltun.countriesbe.service.interfaces.ICountryService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -21,9 +25,13 @@ import java.util.Optional;
 public class CountryService implements ICountryService {
     private final ICountryRepository countryRepository;
     private final ICountryMapper countryMapper;
+    private final ILanguageRepository languageRepository;
+
+    @Transactional(readOnly = true)  //ıkı ayrı table oldugu ıcın tablelar arasında dolasırken kapanmaması gerekıyor kapının ondan dolayı bu method calısırken acık bırak dıyoruz
     @Override
-    public List<Country> getAllCountries() {
-        return countryRepository.findAll();
+    public List<CountryDto> getAllCountries() {
+
+        return countryMapper.fromCountryList(countryRepository.findAll());
     }
 
     //testi yazıldı
@@ -36,15 +44,42 @@ public class CountryService implements ICountryService {
 
     //test
     @Override
-    public CountryDto insertCountry (CountryDto countryDto) {
-        Country country=countryMapper.toCountry(countryDto);
-        //burada bızım daha once kayıtlı ulke var mı dıye bakmamız gerekıyor.
-            boolean existingCountry = countryRepository.findByCode(country.getCode()).isPresent();
-                if(existingCountry){
-                    throw new CountryAlreadyExistsException();
+    @Transactional
+    public CountryDto insertCountry(CountryDto countryDto) {
+        Country country = countryMapper.toCountry(countryDto);
+        boolean existingCountry = countryRepository.findByCode(country.getCode()).isPresent();
+        if(existingCountry){
+            throw new CountryAlreadyExistsException();
+        }
+        //bu gırılecek olan ulkenın dıllerı daha once var mı kontrol edıyoruz.
+        if (country.getCountryLanguages() != null) {
+            for (CountryLanguage araci : country.getCountryLanguages()) {
+
+                //burada artık countrylanguagenın ıcındekı sınıftayız bız for dongusunun dısında Country nesnesıyle ıs yapıyorduk burada hangı ulke oldugunu bılmemız gerekıyor cunku mapstruck json dosyasına donsuturmede sadece cevırmendır ne oldugunu hatırlayamaz
+                araci.setCountry(country);
+
+                // yukarıda ulkemızı tekrar tanımladık yanı bılgılerı gırıldı countrylanguagede sonrasında bu ulkenın kullandıgı dıl daha once
+                //var mı kontrol etmem gerekıyor o yuzden araci sınıftakı dil bilgisini cekiyorum.
+                Language sahteDil = araci.getLanguage();
+                Optional<Language> gercekDil = languageRepository.findByCode(sahteDil.getCode());
+                //sonrasında dili language sınıfına gonderıyorum var mı seklınde strıng olarak tr dıye suan verı tabanını kontrol edıyor yanı
+
+                if (gercekDil.isPresent()) {
+                    // Veritabanında varsa onu kullan (Yeni kayıt atmasını engelle)
+                    araci.setLanguage(gercekDil.get());
                 }
-                countryRepository.save(country);
-                return countryDto;
+                //eğer varsa bu dıl önceden kayıtlı olan idsi kacsa yeni idsi de bu şekılde olur. yanı tr 5 ise id sı kuzey kıbrıs tc kayıt olurken 5 id sini kullanacak
+            }
+
+            /// önemli !!! fark ettıysen bız country ın ıcındekı araciyı değiştirdik işte bu araci aslında country ın ıcındeydı yanı bunu degıstırınce aslında country da degısmıs oluyor matruska gıbı
+        ///  bunu kaydederken de hibernate devreye gırıyor     @OneToMany(mappedBy = "country", cascade = CascadeType.ALL, orphanRemoval = true)   country da CountryLanguageyı bu sekılde tanımladım
+        /// hıbernate dıyor kı dur country ı kaydedeyım tam bu esnada ıse bi dakıka ıcındekı lısteye countrylanguageye bakmam gerekıyor der bir bakar aa bunlarda degısıklıkler var o zaman countrylanguage tablosunda da degısıklık yapmam gerek der ve degısıklık yapar kaydeder
+        }
+
+        countryRepository.save(country);
+
+        // 5. Kaydedilmiş halini (ID'leri dolmuş halini) geri dön
+        return countryMapper.fromCountry(country);
     }
 
     //testı yazıldı
@@ -73,13 +108,14 @@ public class CountryService implements ICountryService {
     //testı yazıldı
     @Override
     public CountryDto convertCountry(String code, String name) {
-        CountryDto result = getCountry(code);
-        Country country = countryMapper.toCountry(result);
-        country.setName(name);
-        Country resultcountry=countryRepository.save(country);
-        CountryDto countrydto=countryMapper.fromCountry(resultcountry);
-        //save metodu yalnızca entıty sınıfını kabul eder .
-        return  countrydto;
+        Optional<Country> country = countryRepository.findByCode(code);
+        if(country.isEmpty()){
+            throw new CountryNotFoundException();
+        }else{
+            country.get().setName(name);
+            countryRepository.save(country.get());
+            return countryMapper.fromCountry(country.get());
+        }
     }
 
     //Hüsna Hanımın istediği uç noktalar
@@ -138,12 +174,8 @@ public class CountryService implements ICountryService {
 
     @Override
     public List<CountryDto> getCountryLanguage(String language){
-        List<Country> result = countryRepository.findByLanguage(language);
-        if(result.isEmpty()){
-            throw new LanguageNotFoundException();
-        }else{
-            return countryMapper.fromCountryList(result);
-        }
+        List<Country> countiries= countryRepository.findCountriesByLanguageCode(language);
+        return countryMapper.fromCountryList(countiries);
     }
 
 

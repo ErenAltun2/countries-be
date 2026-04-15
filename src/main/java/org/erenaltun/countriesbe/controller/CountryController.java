@@ -29,10 +29,10 @@ public class CountryController {
 
 
     @GetMapping("/all")
-    public GenericResponse<List<Country>>getAllCountries(Locale locale){
+    public GenericResponse<List<CountryDto>>getAllCountries(Locale locale){
         var response = countryService.getAllCountries();
         String message = messageService.getMessage(I18nConstants.COUNTRY_GET_ALL_SUCCESS,locale);
-        return GenericResponse.<List<Country>>builder()
+        return GenericResponse.<List<CountryDto>>builder()
                 .success(true)
                 .message(message)
                 .data(response)
@@ -124,5 +124,8 @@ public class CountryController {
         String message = messageService.getMessage(I18nConstants.LANGUAGE_GET_COUNTRY_SUCCESS,locale,language);
         return GenericResponse.<List<CountryDto>>builder().success(true).message(message).data(result).build();
     }
+
+
+
 
 }

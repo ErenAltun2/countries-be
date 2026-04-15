@@ -24,7 +24,7 @@ public class GlobalExceptionHandler {
         String message = messageService.getMessage(ex.getMessage(), LocaleContextHolder.getLocale());
         return ResponseEntity.status(HttpStatus.CONFLICT).body(
                 GenericResponse.builder().success(false).message(message).data(LocalDateTime.now().toString()).build()
-        ); //:TODO ınternal server error kısmını duzelt
+        ); //:TODO ınternal server error kısmını duzelt -  duzeltıldı.
     }
 
     @ExceptionHandler(NotFoundException.class)

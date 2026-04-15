@@ -1,8 +1,11 @@
 package org.erenaltun.countriesbe.mapper;
 
 import org.erenaltun.countriesbe.dto.CountryDto;
+import org.erenaltun.countriesbe.dto.LanguageDto;
 import org.erenaltun.countriesbe.entity.Country;
+import org.erenaltun.countriesbe.entity.CountryLanguage;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
 import java.util.List;
 
@@ -10,40 +13,26 @@ import java.util.List;
 @Mapper(componentModel = "spring")
 public interface ICountryMapper {
 
+    // 1. DTO -> Entity (Kaydederken kullanıyorsun)
+    @Mapping(source = "languages", target = "countryLanguages")   //burada mapleme ıslemı yapıyoruz cunku dtodakı languageler ıle entıty dekı langueler turlerı farklı ve ısımlendırmelerı farklı
     Country toCountry(CountryDto countryDto);
 
+    // 2. Entity -> DTO (Ekrana basarken kullanıyorsun)
+    @Mapping(source = "countryLanguages", target = "languages")
     CountryDto fromCountry(Country country);
 
     List<CountryDto> fromCountryList(List<Country> countries);
 
+    // --- LİSTE ELEMANLARININ DÖNÜŞÜMÜ ---
 
-//    public Country fromCountryDto(CountryDto countryDto){
-//            return Country.builder()
-//                    .code(countryDto.getCode())
-//                    .name(countryDto.getName())
-//                    .nativeName(countryDto.getNativeName())
-//                    .phone(countryDto.getPhone())
-//                    .capital(countryDto.getCapital())
-//                    .continent(countryDto.getContinent())
-//                    .currency(countryDto.getCurrency())
-//                    .language(countryDto.getLanguage())
-//                    .flag(countryDto.getFlag())
-//                    .build();
-//
-//    }
-//
-//    public CountryDto toCountryDto(Country country){
-//        return CountryDto.builder()
-//                .id(country.getId())
-//                .code(country.getCode())
-//                .name(country.getName())
-//                .nativeName(country.getNativeName())
-//                .phone(country.getPhone())
-//                .capital(country.getCapital())
-//                .continent(country.getName())
-//                .currency(country.getCurrency())
-//                .language(country.getLanguage())
-//                .flag(country.getFlag())
-//                .build();
-//    }
+    // DTO'daki LanguageDto'yu alıp Kavşak tablosuna (CountryLanguage) çevirme kuralı
+    @Mapping(source = "code", target = "language.code")
+    CountryLanguage toCountryLanguage(LanguageDto languageDto);
+
+    // Kavşak tablosunu alıp DTO'ya çevirme kuralı
+    @Mapping(source = "language.code", target = "code")
+    LanguageDto fromCountryLanguage(CountryLanguage countryLanguage);
+
+    //bu ıkısını elle kendım kullanmıyorum yukarıda dedıgım tocountry ve fromcountry ıcın hazırladım mapper otomatık kullanıyor.
+
 }
