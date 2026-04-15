@@ -125,7 +125,31 @@ public class CountryController {
         return GenericResponse.<List<CountryDto>>builder().success(true).message(message).data(result).build();
     }
 
+    @GetMapping("/currency")
+    public GenericResponse<List<String>>getCurrency(Locale locale){
+        List<String>currencies=countryService.getCurrency();
+        String message=messageService.getMessage(I18nConstants.CURRENCY_GET_ALL,locale);
+        return GenericResponse.<List<String>>builder().success(true).message(message).data(currencies).build();
 
+    }
+
+    @GetMapping("/phoneCodes")
+    public GenericResponse<List<String>>getPhoneCode(@RequestParam String order , Locale locale){
+        if(order.equals("asc")){
+            String message = messageService.getMessage(I18nConstants.PHONE_CODE_ASC_SUCCESS,locale);
+            List<String>result=countryService.getPhoneAscending();
+            return GenericResponse.<List<String>>builder().success(true).message(message).data(result).build();
+
+        } else if (order.equals("desc")) {
+            String message = messageService.getMessage(I18nConstants.PHONE_CODE_DESC_SUCCESS,locale);
+            List<String>result=countryService.getPhoneDescending();
+            return GenericResponse.<List<String>>builder().success(true).message(message).data(result).build();
+
+        }else{
+            return null;
+        }
+
+    }
 
 
 }

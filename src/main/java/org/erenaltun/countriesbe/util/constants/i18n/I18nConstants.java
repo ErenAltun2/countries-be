@@ -8,6 +8,8 @@ public class I18nConstants {
     public final static String COUNTRY_NOT_FOUND="country.not.found";
     public final static String CONTINENT_NOT_FOUND="continent.not.found";
     public final static String LANGUAGE_NOT_FOUND="language.not.found";
+    public final static String CURRENCY_NOT_FOUND="currency.not.found";
+    public final static String PHONE_CODE_NOT_FOUND="phone.not.found";
 
 
 
@@ -24,6 +26,11 @@ public class I18nConstants {
     public final static String COUNTRY_GET_PHONE_COUNTRY_SUCCESS="country.getPhoneCountry.success";
     public final static String COUNTRY_GET_CONTINENT_COUNTRY_SUCCESS="country.getContinentCountry.success";
     public final static  String LANGUAGE_GET_COUNTRY_SUCCESS="language.getcountry.success";
+    public final static String CURRENCY_GET_ALL="currency.get.success";
+    public final static String PHONE_CODE_ASC_SUCCESS="phone.get.asc.success";
+    public final static String PHONE_CODE_DESC_SUCCESS="phone.get.desc.success";
+
+
 
 
 }

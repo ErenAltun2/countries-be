@@ -5,10 +5,7 @@ import org.erenaltun.countriesbe.dto.CountryDto;
 import org.erenaltun.countriesbe.entity.Country;
 import org.erenaltun.countriesbe.entity.CountryLanguage;
 import org.erenaltun.countriesbe.entity.Language;
-import org.erenaltun.countriesbe.exception.ContinentNotFoundException;
-import org.erenaltun.countriesbe.exception.CountryAlreadyExistsException;
-import org.erenaltun.countriesbe.exception.CountryNotFoundException;
-import org.erenaltun.countriesbe.exception.LanguageNotFoundException;
+import org.erenaltun.countriesbe.exception.*;
 import org.erenaltun.countriesbe.initializer.CountryInitializer;
 import org.erenaltun.countriesbe.mapper.ICountryMapper;
 import org.erenaltun.countriesbe.repository.ICountryRepository;
@@ -17,6 +14,8 @@ import org.erenaltun.countriesbe.service.interfaces.ICountryService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.Currency;
 import java.util.List;
 import java.util.Optional;
 
@@ -178,7 +177,45 @@ public class CountryService implements ICountryService {
         return countryMapper.fromCountryList(countiries);
     }
 
+    @Override
+    public List<String>getCurrency(){
+//        List<Country>result=countryRepository.findAll();
+//        List<String>currencies = new ArrayList<>();
+//        for(Country currency : result){
+//            currencies.add(currency.getCurrency());
+//        }
+//        if(currencies.isEmpty()){
+//            throw new CurrencyNotFoundException();
+//        }
+//        return currencies;
+        //bu yontem uzun ve verı tabanındakı butun bılgılerı cekıyor yavaslatır sıstemı
 
+        List<String>currencies=countryRepository.findCurrencyAll();
+        if(currencies.isEmpty()){
+            throw new CurrencyNotFoundException();
+        }
+        return currencies;
+    }
+
+    @Override
+    public List<String>getPhoneAscending(){
+        List<String>result = countryRepository.phoneByAscending();
+        if(result.isEmpty()){
+            throw new CountryNotFoundException();
+        }else{
+            return result;
+        }
+    }
+
+    @Override
+    public List<String>getPhoneDescending(){
+        List<String>result = countryRepository.phoneByDescending();
+        if(result.isEmpty()){
+            throw new CountryNotFoundException();
+        }else{
+            return result;
+        }
+    }
 
 
 }

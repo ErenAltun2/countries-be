@@ -31,4 +31,12 @@ public interface ICountryRepository extends JpaRepository<Country,Long> {
     @Query("SELECT c FROM Country c JOIN c.countryLanguages cl WHERE cl.language.code = :langCode")
     List<Country> findCountriesByLanguageCode(@Param("langCode") String langCode);
 
+    @Query("SELECT DISTINCT c.currency FROM Country c WHERE c.currency IS NOT NULL")
+    List<String>findCurrencyAll();
+
+    @Query("SELECT c.phone FROM Country c ORDER BY c.phone")
+    List<String>phoneByAscending();
+
+    @Query("SELECT c.phone FROM Country c ORDER BY c.phone desc ")
+    List<String>phoneByDescending();
 }

@@ -19,5 +19,9 @@ public interface ICountryService {
     List<CountryDto>getPhoneCountry(int phone);
     List<CountryDto>getContinentCountry(String continent);
     List<CountryDto> getCountryLanguage(String language);
+    List<String>getCurrency();
+    List<String>getPhoneAscending();
+    List<String>getPhoneDescending();
+
 
 }
