@@ -20,8 +20,8 @@ public interface ICountryService {
     List<CountryDto>getContinentCountry(String continent);
     List<CountryDto> getCountryLanguage(String language);
     List<String>getCurrency();
-    List<String>getPhoneAscending();
-    List<String>getPhoneDescending();
+    List<CountryDto>getPhoneAscending();
+    List<CountryDto>getPhoneDescending();
 
 
 }

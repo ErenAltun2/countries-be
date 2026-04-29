@@ -33,7 +33,6 @@ public class CountryService implements ICountryService {
         return countryMapper.fromCountryList(countryRepository.findAll());
     }
 
-    //testi yazıldı
     @Override
     public List<CountryDto> insertCountries() {
         List<Country> result = countryRepository.saveAll(CountryInitializer.readCountry());
@@ -41,7 +40,6 @@ public class CountryService implements ICountryService {
         //map struct sayesınde dırekt olarak eslestırıp kaydedıyor
     }
 
-    //test
     @Override
     @Transactional
     public CountryDto insertCountry(CountryDto countryDto) {
@@ -81,7 +79,6 @@ public class CountryService implements ICountryService {
         return countryMapper.fromCountry(country);
     }
 
-    //testı yazıldı
     @Override
     public CountryDto getCountry(String code) {
         Optional<Country> result =countryRepository.findByCode(code);
@@ -92,19 +89,13 @@ public class CountryService implements ICountryService {
         return countryDto;
     }
 
-    //testı yazıldı
     @Override
     public CountryDto deleteCountry(String code) {
         CountryDto countryDto = getCountry(code);
-        if(countryDto.getCode().isEmpty()){
-            throw new CountryNotFoundException();
-        }else{
             countryRepository.deleteByCode(code);
             return countryDto;
         }
-    }
 
-    //testı yazıldı
     @Override
     public CountryDto convertCountry(String code, String name) {
         Optional<Country> country = countryRepository.findByCode(code);
@@ -198,8 +189,8 @@ public class CountryService implements ICountryService {
     }
 
     @Override
-    public List<String>getPhoneAscending(){
-        List<String>result = countryRepository.phoneByAscending();
+    public List<CountryDto>getPhoneAscending(){
+        List<CountryDto>result = countryRepository.phoneByAscending();
         if(result.isEmpty()){
             throw new CountryNotFoundException();
         }else{
@@ -208,8 +199,8 @@ public class CountryService implements ICountryService {
     }
 
     @Override
-    public List<String>getPhoneDescending(){
-        List<String>result = countryRepository.phoneByDescending();
+    public List<CountryDto>getPhoneDescending(){
+        List<CountryDto>result = countryRepository.phoneByDescending();
         if(result.isEmpty()){
             throw new CountryNotFoundException();
         }else{

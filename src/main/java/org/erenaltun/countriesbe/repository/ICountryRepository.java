@@ -35,8 +35,8 @@ public interface ICountryRepository extends JpaRepository<Country,Long> {
     List<String>findCurrencyAll();
 
     @Query("SELECT c.phone FROM Country c ORDER BY c.phone")
-    List<String>phoneByAscending();
+    List<CountryDto>phoneByAscending();
 
     @Query("SELECT c.phone FROM Country c ORDER BY c.phone desc ")
-    List<String>phoneByDescending();
+    List<CountryDto>phoneByDescending();
 }

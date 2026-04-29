@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yeni Ülke Ekle | Yönetim Paneli</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 font-sans">
+
+<div class="container mx-auto p-6 max-w-2xl mt-10">
+    <div class="bg-white p-8 rounded-lg shadow-xl border-t-4 border-purple-600">
+        <div class="flex justify-between items-center mb-6 border-b pb-4">
+            <h2 class="text-3xl font-bold text-gray-800">🌍 Yeni Ülke Tanımla</h2>
+            <button onclick="window.location.href='/index.html'" class="text-gray-500 hover:text-gray-800 transition font-medium">← Ana Sayfaya Dön</button>
+        </div>
+
+        <form id="addCountryForm" class="space-y-5">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Ülke Adı *</label>
+                    <input type="text" id="insName" placeholder="Örn: Türkiye" required class="w-full border border-gray-300 p-2.5 rounded-md focus:ring-purple-500 focus:border-purple-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Yerel Ad</label>
+                    <input type="text" id="insNative" placeholder="Örn: Türkiye" class="w-full border border-gray-300 p-2.5 rounded-md focus:ring-purple-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">ISO Kodu *</label>
+                    <input type="text" id="insCode" placeholder="Örn: TR" required class="w-full border border-gray-300 p-2.5 rounded-md focus:ring-purple-500 uppercase">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Telefon Kodu</label>
+                    <div class="flex">
+                        <span class="inline-flex items-center px-3 text-sm text-gray-900 bg-gray-200 border border-r-0 border-gray-300 rounded-l-md">+</span>
+                        <input type="number" id="insPhone" placeholder="90" class="w-full border border-gray-300 p-2.5 rounded-r-md focus:ring-purple-500">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Başkent</label>
+                    <input type="text" id="insCapital" placeholder="Örn: Ankara" class="w-full border border-gray-300 p-2.5 rounded-md focus:ring-purple-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Kıta</label>
+                    <input type="text" id="insContinent" placeholder="Örn: Asia/Europe" class="w-full border border-gray-300 p-2.5 rounded-md focus:ring-purple-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Para Birimi</label>
+                    <input type="text" id="insCurrency" placeholder="Örn: TRY" class="w-full border border-gray-300 p-2.5 rounded-md focus:ring-purple-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Dil Kodu</label>
+                    <input type="text" id="insLangCode" placeholder="Örn: tr" class="w-full border border-gray-300 p-2.5 rounded-md focus:ring-purple-500">
+                </div>
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Bayrak (Emoji/Link)</label>
+                    <input type="text" id="insFlag" placeholder="Örn: 🇹🇷" class="w-full border border-gray-300 p-2.5 rounded-md focus:ring-purple-500">
+                </div>
+            </div>
+
+            <div class="flex justify-end pt-4">
+                <button type="submit" class="bg-purple-600 text-white px-8 py-3 rounded-md hover:bg-purple-700 transition font-bold shadow-lg">Ülkeyi Kaydet</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    const API_URL = "http://localhost:8181/countries";
+
+    document.getElementById('addCountryForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const langCode = document.getElementById('insLangCode').value;
+        const languagesList = langCode ? [{ code: langCode }] : [];
+
+        const dto = {
+            name: document.getElementById('insName').value,
+            nativeName: document.getElementById('insNative').value,
+            code: document.getElementById('insCode').value,
+            phone: parseInt(document.getElementById('insPhone').value) || 0,
+            capital: document.getElementById('insCapital').value,
+            continent: document.getElementById('insContinent').value,
+            currency: document.getElementById('insCurrency').value,
+            languages: languagesList,
+            flag: document.getElementById('insFlag').value
+        };
+
+        try {
+            const res = await fetch(`${API_URL}/insert`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(dto)
+            });
+            const result = await res.json();
+
+            if(result.success) {
+                alert(result.message || "Ülke başarıyla eklendi!");
+                window.location.href = '/index.html'; // Başarılıysa ana sayfaya dön
+            } else {
+                alert("Hata: " + result.message);
+            }
+        } catch (error) {
+            alert("Sunucuya bağlanılamadı!");
+        }
+    });
+</script>
+</body>
+</html>

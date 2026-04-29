@@ -1,160 +1,438 @@
-//package org.erenaltun.countriesbe;
-//
-//import org.erenaltun.countriesbe.entity.Country;
-//import org.erenaltun.countriesbe.initializer.CountryInitializer;
-//import org.erenaltun.countriesbe.repository.ICountryRepository;
-//import org.erenaltun.countriesbe.service.impl.CountryService;
-//import org.junit.jupiter.api.Test;
-//import org.junit.jupiter.api.extension.ExtendWith;
-//import org.mockito.InjectMocks;
-//import org.mockito.Mock;
-//import org.mockito.MockedStatic;
-//import org.mockito.Mockito;
-//import org.mockito.junit.jupiter.MockitoExtension;
-//
-//import java.util.ArrayList;
-//import java.util.List;
-//import java.util.Optional;
-//
-//import static org.junit.jupiter.api.Assertions.assertEquals;
-//import static org.junit.jupiter.api.Assertions.assertNotNull;
-//
-////neden unıt testlerde newleyerek sınıfları alıyoruz normalde dependency ınject kullanırdık cunku
-////Normalde projen çalışırken nesneleri Spring oluşturur. Ancak biz Unit Test yazarken hız kazanmak ve sadece o sınıfı test etmek için Spring'i (Context) ayağa kaldırmayız. Spring ayağa kalkmadığı için @Autowired veya @RequiredArgsConstructor (Spring tarafındaki otomatik enjeksiyon kısmı) çalışmaz.İşte bu yüzden nesneyi bir şekilde oluşturmak zorundayız.
-//
-//@ExtendWith(MockitoExtension.class) //mockıtoyu ayaga kaldırır bu sayede fake verılerle calısabılecegım test ederken sureklı olarak database le calısırsam hem yavas calısmıs oluruz hemde hata database de mı servıce de mı anlamak zorlasır bu unıt test entegrasyon testı degıl
-//public class CountryServiceTest {
-//    @Mock
-//    private ICountryRepository countryRepository;  //bu sahte cunku gercek reposıtory verılerle ugrasıyordu
-//
-//    @InjectMocks  //new leme ıslemını gızlıce yapar mocks
-//    private CountryService countryService;  //bu gercek cunku bunu test etmek ıstıyorum
-//
-//
-//
+package org.erenaltun.countriesbe;
+
+import org.erenaltun.countriesbe.dto.CountryDto;
+import org.erenaltun.countriesbe.entity.Country;
+import org.erenaltun.countriesbe.entity.CountryLanguage;
+import org.erenaltun.countriesbe.entity.Language;
+import org.erenaltun.countriesbe.exception.ContinentNotFoundException;
+import org.erenaltun.countriesbe.exception.CountryAlreadyExistsException;
+import org.erenaltun.countriesbe.exception.CountryNotFoundException;
+import org.erenaltun.countriesbe.exception.CurrencyNotFoundException;
+import org.erenaltun.countriesbe.initializer.CountryInitializer;
+import org.erenaltun.countriesbe.mapper.ICountryMapper;
+import org.erenaltun.countriesbe.repository.ICountryRepository;
+import org.erenaltun.countriesbe.repository.ILanguageRepository;
+import org.erenaltun.countriesbe.service.impl.CountryService;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import javax.print.DocPrintJob;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+@ExtendWith(MockitoExtension.class) // mockitodan nesne uretecegımızı COuntryService sınıfına belirtiyoruz.
+public class CountryServiceTest {
+    @Mock
+    private ICountryRepository countryRepository;
+    @Mock
+    private ICountryMapper countryMapper;
+    @Mock
+    private ILanguageRepository languageRepository;
+
+    @InjectMocks
+    private CountryService countryService;
+
+    private CountryDto createFakeCountryDto(String code,String name){
+        CountryDto dto = new CountryDto();
+        dto.setCode(code);
+        dto.setName(name);
+        return dto;
+    }
+
+    private Country createFakeCountry(String code , String name){
+        Country country = new Country();
+        country.setName(name);
+        country.setCode(code);
+        return country;
+    }
+
+    @Test
+    void getAllCountries_Test(){
+        List<Country> country = new ArrayList<>();
+       country.add(createFakeCountry("TR","Türkiye"));
+       country.add(createFakeCountry("ER","ALTUN"));
+
+        List<CountryDto> countryDto=new ArrayList<>();
+        countryDto.add(createFakeCountryDto("TR","Türkiye"));
+        countryDto.add(createFakeCountryDto("ER","ALTUN"));
+
+        Mockito.when(countryRepository.findAll()).thenReturn(country);
+
+        Mockito.when(countryMapper.fromCountryList(country)).thenReturn(countryDto);
+
+        List<CountryDto>result=countryService.getAllCountries();
+
+        assertNotNull(result);
+
+        assertEquals(countryDto.get(0).getName(),result.get(0).getName());
+    }
+
+    //burada ben sunu test edıyorum eger daha once kullanılmıs code varsa o ulke aynı code u kullanamaz benı daha once kayıtlı var mı uyarısı calısıyor mu kontrolu
+    @Test
+    void insertCountry_Test_UlkeZatenVarsa_HataFirlatmali(){
+        Country country = createFakeCountry("TR","Türkiye");
+        CountryDto dto = createFakeCountryDto("TR","Türkiye");
+
+        Mockito.when(countryMapper.toCountry(dto)).thenReturn(country);
+        Mockito.when(countryRepository.findByCode(country.getCode())).thenReturn(Optional.of(country));
+
+        assertThrows(CountryAlreadyExistsException.class,()->{countryService.insertCountry(dto);});
+
+    }
+
+    @Test
+    void insertCountry_UlkeYoksa_BasariylaKaydetmeli() {
+        CountryDto inputDto = createFakeCountryDto("DE", "Almanya");
+        Country countryEntity = createFakeCountry("DE", "Almanya");
+
+        Mockito.when(countryMapper.toCountry(inputDto)).thenReturn(countryEntity);
+
+        Mockito.when(countryRepository.findByCode("DE")).thenReturn(Optional.empty());
+
+        Mockito.when(countryMapper.fromCountry(countryEntity)).thenReturn(inputDto);
+
+        CountryDto result = countryService.insertCountry(inputDto);
+
+        assertNotNull(result);
+        assertEquals("Almanya", result.getName());
+
+        // MÜFETTİŞ (Verify): Kod gerçekten save() metoduna ulaştı mı?
+        // Eğer hata fırlatsaydı kod buraya hiç gelemeyecekti.
+        Mockito.verify(countryRepository, Mockito.times(1)).save(countryEntity);
+    }
+
+    @Test
+    void insertCountry_YeniDilVarsa_OnuDaKaydetmeli() {
+        // 1. Arrange
+        CountryDto dto = createFakeCountryDto("FR", "France");
+        Country entity = createFakeCountry("FR", "France");
+
+        Language yeniDil = new Language();
+        yeniDil.setCode("fr");
+        CountryLanguage araci = new CountryLanguage();
+        araci.setLanguage(yeniDil);
+        entity.setCountryLanguages(new ArrayList<>(List.of(araci)));
+
+        Mockito.when(countryMapper.toCountry(dto)).thenReturn(entity);
+        Mockito.when(countryRepository.findByCode("FR")).thenReturn(Optional.empty());
+
+        // KRİTİK: Veritabanında 'fr' dili YOK (Empty dönüyoruz)
+        Mockito.when(languageRepository.findByCode("fr")).thenReturn(Optional.empty());
+
+        Mockito.when(countryMapper.fromCountry(entity)).thenReturn(dto);
+
+        // 2. Act
+        countryService.insertCountry(dto);
+
+        // 3. Assert
+        // Dil yoksa if'e girmez, ama save(country) çağrıldığında o dil de kaydedilir.
+        Mockito.verify(countryRepository).save(entity);
+        // Veritabanında dil olmadığı için languageRepository.findByCode çağrılmış olmalı
+        Mockito.verify(languageRepository).findByCode("fr");
+    }
+
+    @Test
+    void getCountry_Test(){
+        String code="TR";
+        Country entity =createFakeCountry(code,"Türkiye");
+        CountryDto dto = createFakeCountryDto(code,"Türkiye");
+
+        Mockito.when(countryRepository.findByCode(code)).thenReturn(Optional.of(entity));
+        //bunu yazarak dıyoruzkı eğer kı findbycode kullanılırsa yukarıda yazdıgım degerı doneceksın verı tabanına gıtmene gerek yok yanı fake verı
+
+        Mockito.when(countryMapper.fromCountry(entity)).thenReturn(dto);
+
+        //sımdı ıse metodu cagırmada
+        CountryDto result = countryService.getCountry(code);
+
+        //burada ıse donmesı gereken degerı bız bılıyoruz bu sekılde karsılastırma yapıyoruz.
+        assertEquals("Türkiye",result.getName());
+
+    }
+
+    @Test
+    void deleteCountry_Test(){
+        String code = "TR";
+        CountryDto dto = createFakeCountryDto("TR","Türkiye");
+        Country country = createFakeCountry("TR","Türkiye");
+        //delete get country ı kullanıyor o zaman get country ı ona gore hazırlamalıyız.
+        Mockito.when(countryRepository.findByCode(dto.getCode())).thenReturn(Optional.of(country));
+        //gelen country ı mapper ıle dto ya gonderıyordu bırde
+        Mockito.when(countryMapper.fromCountry(country)).thenReturn(dto);
+
+        CountryDto result = countryService.deleteCountry(code);
+        assertEquals(code,result.getCode());
+
+        //country repository de deletebycode metodu code ile bir kere çağrıldı mı ona bakıyor.
+        Mockito.verify(countryRepository,Mockito.times(1)).deleteByCode(code);
+        //genellıkle verı tabanında degısıklık yapan kodlar ıcın kullanılır.
+    }
+
+
+    @Test
+    void convertCountry_UlkeVarmı(){
+        //ulkenın code u ıle bulup ısmını degıstırme endpoıntı ıcın yazıyoruz
+        String code = "TR";
+        String name="TürkiyeYeni";
+        Mockito.when(countryRepository.findByCode(code)).thenReturn(Optional.empty());
+        assertThrows(CountryNotFoundException.class,()->{countryService.convertCountry(code,name);});
+
+    }
+
+    @Test
+    void convertCountry_NameUpdate_Test(){
+// GIVEN
+        String code = "TR";
+        String name = "TürkiyeYeni";
+        Country country = createFakeCountry("TR","Türkiye");
+        CountryDto dto = createFakeCountryDto(code, name);
+
+        // Mock yapılandırmaları
+        Mockito.when(countryRepository.findByCode(code)).thenReturn(Optional.of(country));
+        Mockito.when(countryRepository.save(country)).thenReturn(country);
+        Mockito.when(countryMapper.fromCountry(country)).thenReturn(dto);
+
+        // WHEN
+        CountryDto result = countryService.convertCountry(code, name);
+
+        // THEN
+        assertEquals(name, result.getName());
+        assertEquals(code, result.getCode());
+
+        Mockito.verify(countryRepository).findByCode(code);
+        Mockito.verify(countryRepository).save(country);
+
+    }
+
+    @Test
+    void getCountryId_Success_Test(){
+        // GIVEN
+        Long id = 1L;
+        Country country = createFakeCountry("TR", "Türkiye");
+        CountryDto dto = createFakeCountryDto("TR", "Türkiye");
+
+        Mockito.when(countryRepository.findById(id)).thenReturn(Optional.of(country));
+        Mockito.when(countryMapper.fromCountry(country)).thenReturn(dto);
+
+        // WHEN
+        CountryDto result = countryService.getCountryId(id);
+
+        // THEN
+        assertNotNull(result);
+        assertEquals("Türkiye", result.getName());
+        Mockito.verify(countryRepository).findById(id);
+    }
+
+    @Test
+    void getCountryId_CountryNotFound_Test(){
+        // GIVEN
+        Long id = 1L;
+        Mockito.when(countryRepository.findById(id)).thenReturn(Optional.empty());
+
+        // WHEN & THEN
+        assertThrows(CountryNotFoundException.class, () -> {
+            countryService.getCountryId(id);
+        });
+
+        // Mapper'ın hiç çağrılmadığını da doğrulayabilirsin (Güvenli sürüş)
+        Mockito.verifyNoInteractions(countryMapper);
+    }
+
+    @Test
+    void getCountryName_Success_Test(){
+        // GIVEN
+        String name = "Türkiye";
+        Country country = createFakeCountry("TR", name);
+        CountryDto dto = createFakeCountryDto("TR", name);
+
+        Mockito.when(countryRepository.findByName(name)).thenReturn(Optional.of(country));
+        Mockito.when(countryMapper.fromCountry(country)).thenReturn(dto);
+
+        // WHEN
+        CountryDto result = countryService.getCountryName(name);
+
+        // THEN
+        assertNotNull(result);
+        assertEquals(name, result.getName());
+        Mockito.verify(countryRepository).findByName(name);
+    }
+
+    @Test
+    void getCountryName_NotFound_Test(){
+        // GIVEN
+        String name = "BilinmeyenUlke";
+        Mockito.when(countryRepository.findByName(name)).thenReturn(Optional.empty());
+
+        // WHEN & THEN
+        assertThrows(CountryNotFoundException.class, () -> countryService.getCountryName(name));
+    }
+
+    @Test
+    void getAllCountriesName_Test(){
+        // GIVEN
+        Country country1 = createFakeCountry("TR", "Türkiye");
+        Country country2 = createFakeCountry("DE", "Almanya");
+        List<Country> countryList = List.of(country1, country2);
+
+        Mockito.when(countryRepository.findAll()).thenReturn(countryList);
+
+        // WHEN
+        List<String> result = countryService.getAllCountriesName();
+
+        // THEN
+        assertEquals(2, result.size());
+        assertTrue(result.contains("Türkiye"));
+        assertTrue(result.contains("Almanya"));
+        Mockito.verify(countryRepository).findAll();
+    }
+
+    @Test
+    void getPhoneCountry_Success_Test(){
+        // GIVEN
+        int phone = 90;
+        Country country = createFakeCountry("TR", "Türkiye");
+        List<Country> countryList = List.of(country);
+
+        CountryDto dto = createFakeCountryDto("TR", "Türkiye");
+        List<CountryDto> dtoList = List.of(dto);
+
+        Mockito.when(countryRepository.findByPhone(phone)).thenReturn(countryList);
+        Mockito.when(countryMapper.fromCountryList(countryList)).thenReturn(dtoList);
+
+        // WHEN
+        List<CountryDto> result = countryService.getPhoneCountry(phone);
+
+        // THEN
+        assertFalse(result.isEmpty());
+        assertEquals(1, result.size());
+        assertEquals("Türkiye", result.get(0).getName());
+    }
+
+    @Test
+    void getPhoneCountry_NotFound_Test(){
+        // GIVEN
+        int phone = 999;
+        // Liste boş döndüğünde exception fırlatmalı
+        Mockito.when(countryRepository.findByPhone(phone)).thenReturn(Collections.emptyList());
+
+        // WHEN & THEN
+        assertThrows(CountryNotFoundException.class, () -> countryService.getPhoneCountry(phone));
+    }
+
+    @Test
+    void getContinentCountry_Success_Test(){
+        // GIVEN
+        String continent = "Asia";
+        List<Country> countries = List.of(createFakeCountry("TR", "Türkiye"));
+        List<CountryDto> dtos = List.of(createFakeCountryDto("TR", "Türkiye"));
+
+        Mockito.when(countryRepository.findByContinent(continent)).thenReturn(countries);
+        Mockito.when(countryMapper.fromCountryList(countries)).thenReturn(dtos);
+
+        // WHEN
+        List<CountryDto> result = countryService.getContinentCountry(continent);
+
+        // THEN
+        assertEquals(1, result.size());
+        Mockito.verify(countryRepository).findByContinent(continent);
+    }
+
+    @Test
+    void getContinentCountry_NotFound_Test(){
+        // GIVEN
+        String continent = "Atlantis";
+        Mockito.when(countryRepository.findByContinent(continent)).thenReturn(Collections.emptyList());
+
+        // WHEN & THEN
+        assertThrows(ContinentNotFoundException.class, () -> countryService.getContinentCountry(continent));
+    }
+
+    @Test
+    void getCountryLanguage_Test(){
+        // GIVEN
+        String lang = "TR";
+        List<Country> countries = List.of(createFakeCountry("TR", "Türkiye"));
+        List<CountryDto> dtos = List.of(createFakeCountryDto("TR", "Türkiye"));
+
+        Mockito.when(countryRepository.findCountriesByLanguageCode(lang)).thenReturn(countries);
+        Mockito.when(countryMapper.fromCountryList(countries)).thenReturn(dtos);
+
+        // WHEN
+        List<CountryDto> result = countryService.getCountryLanguage(lang);
+
+        // THEN
+        assertEquals(1, result.size());
+    }
+
+    @Test
+    void getCurrency_Success_Test(){
+        // GIVEN
+        List<String> currencies = List.of("TRY", "USD", "EUR");
+        Mockito.when(countryRepository.findCurrencyAll()).thenReturn(currencies);
+
+        // WHEN
+        List<String> result = countryService.getCurrency();
+
+        // THEN
+        assertEquals(3, result.size());
+        assertTrue(result.contains("TRY"));
+    }
+
+    @Test
+    void getCurrency_Empty_Test(){
+        // GIVEN
+        Mockito.when(countryRepository.findCurrencyAll()).thenReturn(Collections.emptyList());
+
+        // WHEN & THEN
+        assertThrows(CurrencyNotFoundException.class, () -> countryService.getCurrency());
+    }
+
+
 //    @Test
-//    void getCountry_UlkeVarsa_UlkeyiDonmeli() {
-//        String ulkeKodu = "TR";
-//        Country fakeCountry = Country.builder()
-//                .code(ulkeKodu)
-//                .name("Türkiye")
-//                .build();
-//        // Repository'ye "findByCode('TR') denirse fakeCountry dön" diyoruz
-//        Mockito.when(countryRepository.findByCode(ulkeKodu)).thenReturn(Optional.of(fakeCountry));
-//        // Eylem test edeceğimiz servis'i kullanıyoruz.
-//        Country result = countryService.getCountry(ulkeKodu);
-//        // 3. ASSERT (Doğrulama)
-//        assertNotNull(result);
-//        assertEquals("Türkiye", result.getName());
-//        assertEquals(ulkeKodu, result.getCode());
+//    void getPhoneAscending_Success_Test(){
+//        // GIVEN
+//        List<CountryDto> phoneCodes = List.of("+1", "+44", "+90");
+//        Mockito.when(countryRepository.phoneByAscending()).thenReturn(phoneCodes);
+//
+//        // WHEN
+//        List<CountryDto> result = countryService.getPhoneAscending();
+//
+//        // THEN
+//        assertEquals(3, result.size());
+//        assertEquals("+1", result.get(0)); // En küçük kodun başta olduğunu doğrula
 //    }
 //
 //    @Test
-//    void deleteCountry_UlkevarsaSilinmeli(){
-//        String ulkeKodu = "TR";
-//        Country fakeCountry = Country.builder()
-//                .code(ulkeKodu)
-//                .name("Türkiye")
-//                .build();
-//        Mockito.when(countryRepository.findByCode(ulkeKodu)).thenReturn(Optional.of(fakeCountry));
-//        Country result = countryService.deleteCountry(ulkeKodu);
-//        assertNotNull(result);
-//        assertEquals("Türkiye", result.getName());
-//        assertEquals(ulkeKodu, result.getCode());
-//        // "countryRepository nesnesinin deleteByCode metodu, 'TR' parametresiyle tam olarak 1 KERE çağrıldı mı?"
-//        Mockito.verify(countryRepository, Mockito.times(1)).deleteByCode(ulkeKodu);
+//    void getPhoneDescending_Success_Test(){
+//        // GIVEN
+//        List<String> phoneCodes = List.of("+90", "+44", "+1");
+//        Mockito.when(countryRepository.phoneByDescending()).thenReturn(phoneCodes);
+//
+//        // WHEN
+//        List<String> result = countryService.getPhoneDescending();
+//
+//        // THEN
+//        assertEquals(3, result.size());
+//        assertEquals("+90", result.get(0)); // En büyük kodun başta olduğunu doğrula
 //    }
-//
-//    @Test
-//    void convertCountry_UlkevarsaAdınıDegistirme(){
-//        String ulkeKodu = "TR";
-//        //kısının degıstırmek ıstedıgı ulke ıcın fake verı olusturuyorum
-//        Country fakeCountry = Country.builder().code(ulkeKodu).name("Türkiye").build();
-//        //kısının koyacagı yenı ısımlı verı ıse deneme adında olacak
-//        Country updatedFakeCountry = Country.builder().code(ulkeKodu).name("Deneme").build();
-//        //fındbycode metodu calıstıgı vakıt fake verı donecek
-//        Mockito.when(countryRepository.findByCode(ulkeKodu)).thenReturn(Optional.of(fakeCountry));
-//        Mockito.when(countryRepository.save(Mockito.any(Country.class))).thenReturn(updatedFakeCountry);
-//        //Mockito.any(Country.class)  bunu yazarak mockıtoya sana verdıgım deger onemlı degıl country classında olacak dırekt oraya fakecountry dıyebılırdık
-//        //lakın bız servıste donen country ın ısmını degıstırıyoruz ya test asamasında patlar aynı nesne olmadıgı ıcın bızde nesnesı onemlı degıl calısıp calısmadıgına bakıyoruz bız.
-//        Country result = countryService.convertCountry(ulkeKodu,"Deneme");
-//        assertNotNull(result);
-//        assertEquals("Deneme", result.getName());
-//        assertEquals(ulkeKodu, result.getCode());
-//        //burada da save e verdıgım deger onemlı degıl calısıyor mu dıye bakıyorum.
-//        //pekı neden fake country demıyorum patlar dıyorum cunku equals dıyoruz ya burada nesnenın ıcıne gırıp degerlerıne bakmıyor tek tek adresıne bakıyor ısmını degıstırınce bız nesnenın adresı degısıyor
-//        Mockito.verify(countryRepository,Mockito.times(1)).save(Mockito.any(Country.class));
-//    }
-//
-//    @Test
-//    void insertCountries_JsonOkunupVeritabaninaKaydedilmeli() {
-//        // 1. ARRANGE
-//        // Dosyadan okunmuş gibi davranacak sahte bir liste hazırlıyoruz
-//        Country fakeCountry = Country.builder().code("TR").name("Türkiye").build();
-//        List<Country> fakeCountryList = List.of(fakeCountry);
-//
-//        // DİKKAT: Statik metotları mocklamak için "try-with-resources" kullanmalıyız.
-//        // Bu sayede mocklama işlemi sadece bu bloğun içinde geçerli olur, diğer testleri bozmaz.
-//        try (MockedStatic<CountryInitializer> mockedStatic = Mockito.mockStatic(CountryInitializer.class)) {
-//
-//            // Statik metoda diyoruz ki: "Biri seni çağırırsa dosyaya gitme, bu listeyi dön!"
-//            mockedStatic.when(CountryInitializer::readCountry).thenReturn(fakeCountryList);
-//
-//            // Repository'ye diyoruz ki: "Sana bu liste gelirse, aynen geri dön"
-//            Mockito.when(countryRepository.saveAll(fakeCountryList)).thenReturn(fakeCountryList);
-//
-//            // 2. ACT
-//            List<Country> result = countryService.insertCountries();
-//
-//            // 3. ASSERT
-//            assertNotNull(result);
-//            assertEquals(1, result.size());
-//            assertEquals("Türkiye", result.get(0).getName());
-//
-//            // MÜFETTİŞ: saveAll metodu gerçekten o sahte listeyle çağrıldı mı?
-//            Mockito.verify(countryRepository, Mockito.times(1)).saveAll(fakeCountryList);
-//        }
-//    }
-//
-//    @Test
-//    void insertCountry_TekbirUlkeKaydetme(){
-//        // 1. ARRANGE
-//        Country fakeCountry = Country.builder().code("DE").name("Deneme").build();
-//
-//        // a) Başarılı kayıt için ülkenin veritabanında "BULUNAMAMASI" gerekir.
-//        Mockito.when(countryRepository.findByCode("DE")).thenReturn(Optional.empty());
-//
-//        // b) Kaydetme işlemi yapıldığında bu ülkeyi geri dön.
-//        Mockito.when(countryRepository.save(Mockito.any(Country.class))).thenReturn(fakeCountry);
-//
-//        // 2. ACT
-//        Country result = countryService.insertCountry(fakeCountry);
-//
-//        // 3. ASSERT
-//        assertNotNull(result);
-//        assertEquals("DE", result.getCode());
-//        assertEquals("Deneme", result.getName());
-//
-//        // MÜFETTİŞ: Gerçekten "save" metodu çağrıldı mı?
-//        Mockito.verify(countryRepository, Mockito.times(1)).save(fakeCountry);
-//    }
-//
-//
-//    @Test
-//    void getAllCountries_ButunListeyiDonme(){
-//        //1- veri tabanına gıtmeyecegı ıcın fake verıler olusturacagım
-//        Country fakeCountry=Country.builder().code("TR").name("TURKEY").nativeName("TÜRKİYE").build();
-//        Country fakeCountry2=Country.builder().code("TRI").name("TURKEYI").nativeName("TÜRKİYE2").build();
-//        List<Country>deneme=new ArrayList<>();
-//        deneme.add(fakeCountry2);
-//        deneme.add(fakeCountry);
-//        Mockito.when(countryRepository.findAll()).thenReturn(deneme);
-//
-//        List<Country>result=countryService.getAllCountries();
-//        assertEquals(deneme,result);
-//        assertNotNull(result);
-//
-//
-//    }
-//
-//}
+
+    @Test
+    void getPhone_NotFound_Test(){
+        // Her iki metod da boş liste dönerse aynı hatayı fırlatıyor
+        Mockito.when(countryRepository.phoneByAscending()).thenReturn(Collections.emptyList());
+
+        assertThrows(CountryNotFoundException.class, () -> countryService.getPhoneAscending());
+    }
+}
+
+
+

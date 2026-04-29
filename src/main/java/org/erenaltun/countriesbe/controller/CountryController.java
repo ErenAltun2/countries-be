@@ -6,6 +6,7 @@ import org.erenaltun.countriesbe.dto.CountryDto;
 import org.erenaltun.countriesbe.entity.Country;
 import org.erenaltun.countriesbe.mapper.ICountryMapper;
 import org.erenaltun.countriesbe.service.interfaces.ICountryService;
+import org.erenaltun.countriesbe.service.interfaces.ICurrencyService;
 import org.erenaltun.countriesbe.service.interfaces.II18nMessageService;
 import org.erenaltun.countriesbe.util.GenericResponse;
 import org.erenaltun.countriesbe.util.constants.Api;
@@ -15,7 +16,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
+@CrossOrigin(origins = "*") // Geliştirme aşamasında her yerden gelen isteğe izin verir
 @RestController
 @RequestMapping("/countries")
 @RequiredArgsConstructor
@@ -26,7 +29,7 @@ public class CountryController {
     //o yuzden dto sınıfını burada yazıyoruz ıstersek servıce de de yazabılırdım.
     private final ICountryService countryService;
     private final II18nMessageService messageService;
-
+    private final ICurrencyService currencyService; // YENİ EKLENE
 
     @GetMapping("/all")
     public GenericResponse<List<CountryDto>>getAllCountries(Locale locale){
@@ -134,21 +137,42 @@ public class CountryController {
     }
 
     @GetMapping("/phoneCodes")
-    public GenericResponse<List<String>>getPhoneCode(@RequestParam String order , Locale locale){
+    public GenericResponse<List<CountryDto>>getPhoneCode(@RequestParam String order , Locale locale){
         if(order.equals("asc")){
             String message = messageService.getMessage(I18nConstants.PHONE_CODE_ASC_SUCCESS,locale);
-            List<String>result=countryService.getPhoneAscending();
-            return GenericResponse.<List<String>>builder().success(true).message(message).data(result).build();
+            List<CountryDto>result=countryService.getPhoneAscending();
+            return GenericResponse.<List<CountryDto>>builder().success(true).message(message).data(result).build();
 
         } else if (order.equals("desc")) {
             String message = messageService.getMessage(I18nConstants.PHONE_CODE_DESC_SUCCESS,locale);
-            List<String>result=countryService.getPhoneDescending();
-            return GenericResponse.<List<String>>builder().success(true).message(message).data(result).build();
+            List<CountryDto>result=countryService.getPhoneDescending();
+            return GenericResponse.<List<CountryDto>>builder().success(true).message(message).data(result).build();
 
         }else{
             return null;
         }
 
+    }
+
+    //ulkelerın para bırımlerını gormek ıcın ekledıgım apı
+    @GetMapping("/currency/rate")
+    public GenericResponse<Double> getCurrencyRate(@RequestParam String code, Locale locale) {
+        Double rate = currencyService.getRateToTry(code);
+        if(rate == null) {
+            String message = messageService.getMessage(I18nConstants.COUNTRY_GET_SUCCESS, locale); // Veya özel bir hata mesajı
+            return GenericResponse.<Double>builder().success(false).message("Kur bulunamadı").build();
+        }
+        return GenericResponse.<Double>builder().success(true).message("Canlı Kur Getirildi").data(rate).build();
+    }
+
+    @GetMapping("/currency/top5")
+    public GenericResponse<Map<String, Double>> getTop5Currencies() {
+        Map<String, Double> top5 = currencyService.getTop5Currencies();
+        return GenericResponse.<Map<String, Double>>builder()
+                .success(true)
+                .message("En değerli 5 para birimi listelendi")
+                .data(top5)
+                .build();
     }
 
 
