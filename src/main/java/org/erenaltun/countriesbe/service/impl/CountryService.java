@@ -163,10 +163,10 @@ public class CountryService implements ICountryService {
     }
 
     @Override
-    public List<CountryDto> getCountryLanguage(String language){
-        List<Country> countiries= countryRepository.findCountriesByLanguageCode(language);
-        return countryMapper.fromCountryList(countiries);
+    public List<CountryDto> getCountryLanguage(String language) {
+        return List.of();
     }
+
 
     @Override
     public List<String>getCurrency(){
@@ -190,7 +190,8 @@ public class CountryService implements ICountryService {
 
     @Override
     public List<CountryDto>getPhoneAscending(){
-        List<CountryDto>result = countryRepository.phoneByAscending();
+        List<Country>resultCountry = countryRepository.phoneByAscending();
+        List<CountryDto> result = countryMapper.fromCountryList(resultCountry);
         if(result.isEmpty()){
             throw new CountryNotFoundException();
         }else{
@@ -200,7 +201,8 @@ public class CountryService implements ICountryService {
 
     @Override
     public List<CountryDto>getPhoneDescending(){
-        List<CountryDto>result = countryRepository.phoneByDescending();
+        List<Country>resultCountry = countryRepository.phoneByDescending();
+        List<CountryDto> result = countryMapper.fromCountryList(resultCountry);
         if(result.isEmpty()){
             throw new CountryNotFoundException();
         }else{

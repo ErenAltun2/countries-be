@@ -34,9 +34,9 @@ public interface ICountryRepository extends JpaRepository<Country,Long> {
     @Query("SELECT DISTINCT c.currency FROM Country c WHERE c.currency IS NOT NULL")
     List<String>findCurrencyAll();
 
-    @Query("SELECT c.phone FROM Country c ORDER BY c.phone")
-    List<CountryDto>phoneByAscending();
+    @Query("SELECT c FROM Country c ORDER BY c.phone")
+    List<Country>phoneByAscending();
 
-    @Query("SELECT c.phone FROM Country c ORDER BY c.phone desc ")
-    List<CountryDto>phoneByDescending();
+    @Query("SELECT c FROM Country c ORDER BY c.phone desc ")
+    List<Country>phoneByDescending();
 }

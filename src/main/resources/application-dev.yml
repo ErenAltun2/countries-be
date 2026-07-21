@@ -9,7 +9,15 @@ spring:
       ddl-auto: update
     properties:
       hibernate:
-        show_sql: false #sql kodları konsol da gorunmemesı ıcın kullanılır.
+        show_sql: false
+
+
+jwt:
+  secret: "270b43598f33942e65643f8d3c52a81dde6fd10c9e1c6c3e75ed9dc75103860b1a692bc0a8eb7faff4e0be928ea1027f1bc4b9114fe48b311202f83b1b74bfc8"
+  access-token-expiration: 900000  #15 dakıkada bır yenılenecek
+  refresh-token-expiration: 604800000
+#  expiration: 86400000
+#sql kodları konsol da gorunmemesı ıcın kullanılır.
 
 #hıbernate : Java sınıflarınız (Nesneler) ile SQL tablolarınız (İlişkisel Veritabanı) arasında bir köprü kurar.
 

@@ -19,7 +19,6 @@ public class CountryInitializer {
         String root = System.getProperty("user.dir"); // bulundugumuz dosyanın kok dızınıne ulasıyoruz
         List<Country> countryList = new ArrayList<>();
 
-        // SİHİRLİ DOKUNUŞ: Tekrar eden dilleri önlemek için hafıza haritası (Cache)
         Map<String, Language> languageCache = new HashMap<>();
 
         try {

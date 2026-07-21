@@ -12,6 +12,7 @@ import org.erenaltun.countriesbe.util.GenericResponse;
 import org.erenaltun.countriesbe.util.constants.Api;
 import org.erenaltun.countriesbe.util.constants.i18n.I18nConstants;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -44,6 +45,7 @@ public class CountryController {
 
     //json dosyasında butun ulkelerı ekler
     @PostMapping("/insertAll")
+    @PreAuthorize("hasRole('ADMIN')")
     public GenericResponse <List<CountryDto>> insertCountries(Locale locale){
         List<CountryDto> response = countryService.insertCountries();
         String message=messageService.getMessage(I18nConstants.COUNTRY_INSERT_ALL_SUCCESS,locale);
@@ -56,6 +58,7 @@ public class CountryController {
 
     //tek tek verdıgımız bılgıler dogrultusunda ulkelerı ekler
     @PostMapping("/insert")
+    @PreAuthorize("hasRole('ADMIN')")
     public GenericResponse<CountryDto> insertCountry(@RequestBody CountryDto countryDto, Locale locale){
         CountryDto country = countryService.insertCountry(countryDto);
         String message = messageService.getMessage(I18nConstants.COUNTRY_INSERT_SUCCESS,locale);
@@ -72,6 +75,7 @@ public class CountryController {
     }
 
     @DeleteMapping("/deletecountry/{code}")
+    @PreAuthorize("hasRole('ADMIN')")
     public GenericResponse<CountryDto>deleteCountry(@PathVariable String code,Locale locale) {
        CountryDto country= countryService.deleteCountry(code);
         String message = messageService.getMessage(I18nConstants.COUNTRY_DELETE_SUCCESS,locale);
@@ -79,6 +83,7 @@ public class CountryController {
     }
 
     @PutMapping("/putcountry/{code}/{name}")
+    @PreAuthorize("hasRole('ADMIN')")
     public GenericResponse<CountryDto>convertName(@PathVariable String code ,@PathVariable String name,Locale locale){
         CountryDto country=countryService.convertCountry(code,name);
         String message = messageService.getMessage(I18nConstants.COUNTRY_UPDATE_SUCCESS,locale,name);
@@ -159,18 +164,19 @@ public class CountryController {
     public GenericResponse<Double> getCurrencyRate(@RequestParam String code, Locale locale) {
         Double rate = currencyService.getRateToTry(code);
         if(rate == null) {
-            String message = messageService.getMessage(I18nConstants.COUNTRY_GET_SUCCESS, locale); // Veya özel bir hata mesajı
             return GenericResponse.<Double>builder().success(false).message("Kur bulunamadı").build();
         }
-        return GenericResponse.<Double>builder().success(true).message("Canlı Kur Getirildi").data(rate).build();
+        String message = messageService.getMessage(I18nConstants.COUNTRY_GET_SUCCESS, locale);
+        return GenericResponse.<Double>builder().success(true).message(message).data(rate).build();
     }
 
     @GetMapping("/currency/top5")
-    public GenericResponse<Map<String, Double>> getTop5Currencies() {
+    public GenericResponse<Map<String, Double>> getTop5Currencies(Locale locale) {
+        String message = messageService.getMessage(I18nConstants.GetTop5Currencies_Success,locale);
         Map<String, Double> top5 = currencyService.getTop5Currencies();
         return GenericResponse.<Map<String, Double>>builder()
                 .success(true)
-                .message("En değerli 5 para birimi listelendi")
+                .message(message)
                 .data(top5)
                 .build();
     }

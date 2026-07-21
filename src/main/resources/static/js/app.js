@@ -1,6 +1,6 @@
 const API_URL = "http://localhost:8181/countries";
 let phoneSortState = 'default';
-let allCountriesData = []; // YENİ: Tüm ülkeleri hafızada tutacağımız global değişken
+let allCountriesData = []; //Tüm ülkeleri hafızada tutacağımız global değişken
 
 // TOP 5 YÜKLEME
 async function loadTop5Currencies() {
@@ -12,13 +12,12 @@ async function loadTop5Currencies() {
             const top5Div = document.getElementById('top5Currencies');
             top5Div.innerHTML = ""; // Yükleniyor animasyonunu temizle
 
-            // Backend'den gelen Map objesini dönüyoruz
             for (const [code, rate] of Object.entries(json.data)) {
                 top5Div.innerHTML += `
-                    <div onclick="filterByCurrency('${code}')" class="bg-white/10 p-3 rounded-lg text-center backdrop-blur-sm border border-white/20 shadow-lg hover:bg-white/30 transition cursor-pointer transform hover:scale-105">
-                        <div class="text-sm text-blue-200 font-semibold">${code}</div>
-                        <div class="text-xl font-bold text-yellow-400">₺${rate.toFixed(2)}</div>
-                    </div>
+                <div onclick="filterByCurrency('${code}')" class="currency-card">
+                    <span class="code">${code}</span>
+                    <span class="rate">₺${rate.toFixed(2)}</span>
+                </div>
                 `;
             }
         }
@@ -27,34 +26,36 @@ async function loadTop5Currencies() {
     }
 }
 
-// PARA BİRİMİNE GÖRE FİLTRELEME (Kutucuğa tıklanınca çalışır)
+// PARA BİRİMİNE GÖRE FİLTRELEME
 function filterByCurrency(currencyCode) {
-    // Hafızadaki ülkelerden sadece seçilen para birimine sahip olanları ayır
     const filteredCountries = allCountriesData.filter(c => c.currency === currencyCode);
-    // Tabloyu filtrelenmiş liste ile yeniden çiz
     renderTable(filteredCountries);
 }
 
-// VERİ YÜKLEME
+// VERİ YÜKLEME (herkese açık, token gerekmiyor)
 async function loadAllCountries() {
     try {
         const res = await fetch(`${API_URL}/all`);
         const json = await res.json();
-        if(json.success) {
-            allCountriesData = json.data; // Veriyi global değişkene kopyala (Filtreleme için)
+        if (json.success) {
+            allCountriesData = json.data;
             renderTable(allCountriesData);
         }
-    } catch (e) { alert("Bağlantı hatası!"); }
+    } catch (e) {
+        alert("Bağlantı hatası!");
+    }
 }
 
 async function getCountry() {
     const code = document.getElementById('countryCode').value;
-    if(!code) return;
+    if (!code) return;
     try {
         const res = await fetch(`${API_URL}/getcountry/${code}`);
         const json = await res.json();
         json.success ? renderTable([json.data]) : alert(json.message);
-    } catch (e) { console.error(e); }
+    } catch (e) {
+        console.error(e);
+    }
 }
 
 // SIRALAMA
@@ -75,24 +76,40 @@ async function togglePhoneSort() {
 async function fetchSorted(order) {
     const res = await fetch(`${API_URL}/phoneCodes?order=${order}`);
     const json = await res.json();
-    if(json.success) renderTable(json.data);
+    if (json.success) renderTable(json.data);
 }
 
 // TABLO ÇİZİMİ
 function renderTable(data) {
     const tbody = document.getElementById('countryTableBody');
     tbody.innerHTML = "";
+
+    // Sadece giriş yapmış kullanıcılar düzenle/sil butonlarını görsün.
+    // (Not: Bu sadece arayüz kozmetiği - asıl güvenlik zaten backend'deki @PreAuthorize'da.
+    //  Butonu göstermesen de saklamasan da, token'sız/yetkisiz istek backend'de reddedilir.)
+    const canManage = isLoggedIn();
+
     data.forEach(c => {
         const phoneDisplay = c.phone ? `+${c.phone}` : 'N/A';
 
+        const actionButtons = canManage ? `
+            <button onclick="event.stopPropagation(); window.location.href='/edit-country.html?code=${c.code}'" 
+                    class="btn-sm btn-edit">Düzenle</button>
+            <button onclick="event.stopPropagation(); deleteCountry('${c.code}')" 
+                    class="btn-sm btn-delete">Sil</button>
+        ` : `
+            <span class="text-xs text-gray-400 italic">Düzenlemek için giriş yapın</span>
+        `;
+
         tbody.innerHTML += `
-        <tr class="hover:bg-blue-50 cursor-pointer transition" onclick="showDetails('${c.code}')">
-            <td class="px-5 py-5 border-b text-sm font-semibold text-blue-700">${c.name}</td>
-            <td class="px-5 py-5 border-b text-sm">${c.code}</td>
-            <td class="px-5 py-5 border-b text-sm font-mono">${phoneDisplay}</td>
-            <td class="px-5 py-5 border-b text-sm text-right space-x-3">
-                <button onclick="event.stopPropagation(); window.location.href='/edit-country.html?code=${c.code}'" class="text-blue-600 font-bold hover:underline">Düzenle</button>
-                <button onclick="event.stopPropagation(); deleteCountry('${c.code}')" class="text-red-600 font-bold hover:underline">Sil</button>
+        <tr onclick="showDetails('${c.code}')">
+            <td>${c.name}</td>
+            <td>${c.code}</td>
+            <td class="font-mono">${phoneDisplay}</td>
+            <td class="text-right">
+                <div class="actions-cell">
+                    ${actionButtons}
+                </div>
             </td>
         </tr>`;
     });
@@ -104,7 +121,7 @@ async function showDetails(code) {
         const res = await fetch(`${API_URL}/getcountry/${code}`);
         const json = await res.json();
 
-        if(json.success) {
+        if (json.success) {
             const c = json.data;
             const langs = (c.languages && c.languages.length > 0) ? c.languages.map(l => l.code).join(' - ') : 'Bilgi yok';
 
@@ -128,14 +145,25 @@ async function showDetails(code) {
         `;
             document.getElementById('countryModal').classList.remove('hidden');
 
-            // Arka planda kura istek at ve HTML'i güncelle
             if (c.currency) {
-                const rateRes = await fetch(`${API_URL}/currency/rate?code=${c.currency}`);
-                const rateJson = await rateRes.json();
-                if(rateJson.success) {
-                    document.getElementById('liveCurrencyRate').innerHTML = `<strong>Canlı Kur (TRY):</strong> 1 ${c.currency} = ₺${rateJson.data.toFixed(2)}`;
-                } else {
-                    document.getElementById('liveCurrencyRate').innerHTML = `<strong>Canlı Kur (TRY):</strong> Bulunamadı`;
+                const cleanCurrency = c.currency.split(',')[0].trim();
+
+                try {
+                    const rateRes = await fetch(`${API_URL}/currency/rate?code=${cleanCurrency}`);
+                    const rateJson = await rateRes.json();
+
+                    if (rateJson.success) {
+                        document.getElementById('liveCurrencyRate').innerHTML = `
+                <strong>Canlı Kur (TRY):</strong> 1 ${cleanCurrency} = ₺${rateJson.data.toFixed(2)}
+            `;
+                    } else {
+                        document.getElementById('liveCurrencyRate').innerHTML = `
+                <strong>Canlı Kur (TRY):</strong> Kur bilgisi alınamadı (${cleanCurrency})
+            `;
+                    }
+                } catch (e) {
+                    console.error("Kur çekme hatası:", e);
+                    document.getElementById('liveCurrencyRate').innerHTML = `<strong>Canlı Kur (TRY):</strong> Hata oluştu`;
                 }
             }
         }
@@ -144,18 +172,37 @@ async function showDetails(code) {
     }
 }
 
+// SİLME — token gerektiren korumalı işlem
 async function deleteCountry(code) {
-    if(!confirm('Emin misiniz?')) return;
-    const res = await fetch(`${API_URL}/deletecountry/${code}`, {method: 'DELETE'});
-    const json = await res.json();
-    alert(json.message);
-    loadAllCountries();
+    if (!confirm('Emin misiniz?')) return;
+
+    if (!isLoggedIn()) {
+        alert("Bu işlem için giriş yapmanız gerekiyor.");
+        window.location.href = '/login.html';
+        return;
+    }
+
+    try {
+        const res = await fetch(`${API_URL}/deletecountry/${code}`, {
+            method: 'DELETE',
+            headers: authHeaders()
+        });
+
+        if (handleAuthError(res.status)) return;
+
+        const json = await res.json();
+        alert(json.message);
+        loadAllCountries();
+    } catch (e) {
+        alert("Silme işlemi sırasında bir hata oluştu.");
+    }
 }
 
 function closeModal() { document.getElementById('countryModal').classList.add('hidden'); }
 
-// Sayfa yüklendiğinde hem tabloyu hem de Top 5'i getir
+// Sayfa yüklendiğinde hem tabloyu hem de Top 5'i getir, üst kısımdaki auth durumunu göster
 window.onload = () => {
+    renderAuthStatus();
     loadAllCountries();
     loadTop5Currencies();
 };

@@ -4,60 +4,68 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ülke Yönetim Paneli | Eren Altun</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/css/style.css">
 </head>
-<body class="bg-gray-100 font-sans">
+<body>
 
-<div class="container mx-auto p-6">
-    <header class="mb-8 text-center">
-        <h1 class="text-4xl font-bold text-blue-800">Ülke Bilgi Sistemi</h1>
-        <p class="text-gray-600">Spring Boot & JPA Backend Projesi</p>
+<div class="container">
+    <header class="main-header">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div>
+                <h1>Ülke Bilgi Sistemi</h1>
+                <p>Spring Boot & JPA Backend Projesi</p>
+            </div>
+            <!-- Giriş yapmışsa kullanıcı adı + çıkış butonu, yapmamışsa giriş/kayıt linkleri burada gösterilir -->
+            <div id="authStatus"></div>
+        </div>
     </header>
 
-    <div class="bg-white p-6 rounded-lg shadow-md mb-8 flex flex-wrap gap-4 items-end">
-        <div class="flex-1 min-w-[200px]">
-            <label class="block text-sm font-medium text-gray-700">Ülke Ara (Kod)</label>
-            <input type="text" id="countryCode" placeholder="Örn: TR" class="mt-1 block w-full border border-gray-300 rounded-md p-2 focus:ring-blue-500 focus:border-blue-500">
+    <div class="search-card">
+        <div class="input-field">
+            <label for="countryCode">Ülke Ara (Kod)</label>
+            <input type="text" id="countryCode" placeholder="Örn: TR">
         </div>
-        <button onclick="getCountry()" class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 transition">Sorgula</button>
-        <button onclick="loadAllCountries()" class="bg-green-600 text-white px-6 py-2 rounded-md hover:bg-green-700 transition">Tümünü Listele</button>
-        <button onclick="window.location.href='/add-country.html'" class="bg-purple-600 text-white px-6 py-2 rounded-md hover:bg-purple-700 transition font-bold">+ Yeni Ülke</button>
-    </div>
-    <div class="bg-gradient-to-r from-blue-800 to-indigo-900 rounded-lg shadow-md p-6 mb-8 text-white border-l-4 border-yellow-400">
-        <h2 class="text-xl font-bold mb-4 flex items-center">🏆 En Değerli 5 Para Birimi (Canlı TRY Karşılığı)</h2>
-        <div id="top5Currencies" class="grid grid-cols-2 md:grid-cols-5 gap-4">
-            <div class="animate-pulse bg-white/20 h-16 rounded-lg"></div>
-            <div class="animate-pulse bg-white/20 h-16 rounded-lg"></div>
-            <div class="animate-pulse bg-white/20 h-16 rounded-lg"></div>
+        <div class="action-buttons">
+            <button onclick="getCountry()" class="btn btn-primary">Sorgula</button>
+            <button onclick="loadAllCountries()" class="btn btn-success">Tümünü Listele</button>
+            <button onclick="window.location.href='/add-country.html'" class="btn btn-info">+ Yeni Ülke</button>
         </div>
     </div>
 
-    <div class="bg-white rounded-lg shadow-md overflow-hidden">
-        <table class="min-w-full leading-normal">
+    <div class="currency-panel">
+        <h3>🏆 En Değerli 5 Para Birimi (Canlı TRY Karşılığı)</h3>
+        <div id="top5Currencies" class="currency-grid">
+        </div>
+    </div>
+
+    <div class="table-wrapper">
+        <table class="data-table">
             <thead>
-            <tr class="bg-blue-800 text-white">
-                <th class="px-5 py-3 border-b-2 text-left text-xs font-semibold uppercase tracking-wider">Ülke Adı</th>
-                <th class="px-5 py-3 border-b-2 text-left text-xs font-semibold uppercase tracking-wider">ISO Kodu</th>
-                <th onclick="togglePhoneSort()" class="px-5 py-3 border-b-2 text-left text-xs font-semibold uppercase tracking-wider cursor-pointer hover:bg-blue-700 transition">
-                    Telefon Kodu <span id="sortIcon"></span>
-                </th>
-                <th class="px-5 py-3 border-b-2 text-right text-xs font-semibold uppercase tracking-wider">İşlemler</th>
+            <tr>
+                <th>Ülke Adı</th>
+                <th>ISO Kodu</th>
+                <th onclick="togglePhoneSort()" class="sortable">Telefon Kodu <span id="sortIcon"></span></th>
+                <th class="text-right">İşlemler</th>
             </tr>
             </thead>
-            <tbody id="countryTableBody" class="text-gray-700">
+            <tbody id="countryTableBody">
+            <!-- Veriler app.js tarafından doldurulacak -->
             </tbody>
         </table>
     </div>
 </div>
 
-<div id="countryModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-40">
-    <div class="bg-white p-8 rounded-lg w-96 shadow-2xl">
-        <h3 class="text-2xl font-bold text-blue-800 border-b pb-2 mb-4" id="modalCountryName">Detaylar</h3>
-        <div class="space-y-3 text-sm" id="modalContent"></div>
-        <button onclick="closeModal()" class="mt-6 w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700">Kapat</button>
+<!-- Modal -->
+<div id="countryModal" class="modal-overlay hidden">
+    <div class="modal-content">
+        <h3 id="modalCountryName">Detaylar</h3>
+        <div id="modalContent" class="modal-body"></div>
+        <button onclick="closeModal()" class="btn btn-primary btn-block">Kapat</button>
     </div>
 </div>
 
+<!-- auth.js, app.js'ten ÖNCE yüklenmeli çünkü app.js onun fonksiyonlarını kullanıyor -->
+<script src="/js/auth.js"></script>
 <script src="/js/app.js"></script>
 </body>
 </html>

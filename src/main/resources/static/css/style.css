@@ -1,0 +1,232 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background-color: #f0f2f5;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #333;
+    line-height: 1.6;
+}
+
+.container {
+    max-width: 1100px;
+    margin: 40px auto;
+    padding: 0 20px;
+}
+
+/* Header */
+.main-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.main-header h1 {
+    color: #1a365d;
+    font-size: 2.5rem;
+}
+
+.main-header p {
+    color: #666;
+}
+
+/* Arama Kartı */
+.search-card {
+    background: #fff;
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.input-field {
+    flex: 1;
+}
+
+.input-field label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+}
+
+.input-field input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+/* Butonlar */
+.btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background 0.3s;
+}
+
+.btn-primary { background: #2b6cb0; color: white; }
+.btn-primary:hover { background: #2c5282; }
+
+.btn-success { background: #38a169; color: white; }
+.btn-success:hover { background: #2f855a; }
+
+.btn-info { background: #805ad5; color: white; }
+
+.btn-block { width: 100%; margin-top: 15px; }
+
+/* Tablo */
+.table-wrapper {
+    background: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.data-table thead {
+    background: #1a365d;
+    color: white;
+}
+
+.data-table th, .data-table td {
+    padding: 15px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+}
+
+.sortable { cursor: pointer; }
+.text-right { text-align: right; }
+
+/* Modal */
+.modal-overlay {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background: white;
+    padding: 30px;
+    border-radius: 8px;
+    width: 400px;
+}
+
+.hidden { display: none; }
+
+/* Para Birimi Paneli ve Grid Yapısı */
+.currency-panel {
+    background: linear-gradient(135deg, #1a365d, #2c5282);
+    color: white;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 30px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.currency-panel h3 {
+    margin-bottom: 15px;
+    font-size: 1.2rem;
+    border-bottom: 1px solid rgba(255,255,255,0.2);
+    padding-bottom: 10px;
+}
+
+/* Kutucukları yan yana dizen Grid */
+.currency-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 15px;
+}
+
+/* Her bir Para Birimi Kutucuğu */
+/* Para birimi kartının üzerine gelince oluşacak efekt */
+.currency-card {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 15px;
+    border-radius: 8px;
+    text-align: center;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.currency-card:hover {
+    background: rgba(246, 224, 94, 0.2); /* Hafif şeffaf sarı arka plan */
+    border-color: #f6e05e; /* Belirgin sarı kenarlık */
+    transform: translateY(-5px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+}
+
+.currency-card:hover .code {
+    color: #fff; /* Yazıyı beyaz yap */
+}
+
+.currency-card:hover .rate {
+    color: #fff; /* Fiyatı beyaz yap ki sarı üzerinde okunsun */
+}
+
+/* İşlem butonları için genel ayar */
+/* Tablo satırı hover efekti */
+.data-table tbody tr {
+    transition: background-color 0.2s;
+    cursor: pointer;
+}
+
+.data-table tbody tr:hover {
+    background-color: #f8fafc;
+}
+
+/* İşlem Butonları Kapsayıcısı */
+.actions-cell {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+/* Küçük Buton Tasarımları */
+.btn-sm {
+    padding: 5px 12px;
+    font-size: 12px;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    color: white;
+    transition: transform 0.1s, opacity 0.2s;
+}
+
+.btn-sm:active {
+    transform: scale(0.95);
+}
+
+.btn-edit {
+    background-color: #f59e0b; /* Turuncu */
+}
+
+.btn-edit:hover {
+    background-color: #d97706;
+}
+
+.btn-delete {
+    background-color: #ef4444; /* Kırmızı */
+}
+
+.btn-delete:hover {
+    background-color: #dc2626;
+}

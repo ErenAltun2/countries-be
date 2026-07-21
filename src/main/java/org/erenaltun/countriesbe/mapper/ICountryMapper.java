@@ -13,11 +13,11 @@ import java.util.List;
 @Mapper(componentModel = "spring")
 public interface ICountryMapper {
 
-    // 1. DTO -> Entity (Kaydederken kullanıyorsun)
+    // 1. DTO -> Entity
     @Mapping(source = "languages", target = "countryLanguages")   //burada mapleme ıslemı yapıyoruz cunku dtodakı languageler ıle entıty dekı langueler turlerı farklı ve ısımlendırmelerı farklı
     Country toCountry(CountryDto countryDto);
 
-    // 2. Entity -> DTO (Ekrana basarken kullanıyorsun)
+    // 2. Entity -> DTO
     @Mapping(source = "countryLanguages", target = "languages")
     CountryDto fromCountry(Country country);
 
@@ -25,14 +25,13 @@ public interface ICountryMapper {
 
     // --- LİSTE ELEMANLARININ DÖNÜŞÜMÜ ---
 
-    // DTO'daki LanguageDto'yu alıp Kavşak tablosuna (CountryLanguage) çevirme kuralı
+    // DTO'daki LanguageDto'yu alıp Kavşak tablosuna çevirme kuralı
     @Mapping(source = "code", target = "language.code")
     CountryLanguage toCountryLanguage(LanguageDto languageDto);
 
     // Kavşak tablosunu alıp DTO'ya çevirme kuralı
     @Mapping(source = "language.code", target = "code")
     LanguageDto fromCountryLanguage(CountryLanguage countryLanguage);
-
     //bu ıkısını elle kendım kullanmıyorum yukarıda dedıgım tocountry ve fromcountry ıcın hazırladım mapper otomatık kullanıyor.
 
 }

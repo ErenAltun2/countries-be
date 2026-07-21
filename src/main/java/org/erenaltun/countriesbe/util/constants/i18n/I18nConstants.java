@@ -29,6 +29,7 @@ public class I18nConstants {
     public final static String CURRENCY_GET_ALL="currency.get.success";
     public final static String PHONE_CODE_ASC_SUCCESS="phone.get.asc.success";
     public final static String PHONE_CODE_DESC_SUCCESS="phone.get.desc.success";
+    public final static String GetTop5Currencies_Success="getTop5Currencies.success";
 
 
 

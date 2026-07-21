@@ -29,7 +29,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@ExtendWith(MockitoExtension.class) // mockitodan nesne uretecegımızı COuntryService sınıfına belirtiyoruz.
+@ExtendWith(MockitoExtension.class) // mockitodan nesne uretecegımızı COuntryServiceTest sınıfına belirtiyoruz.
 public class CountryServiceTest {
     @Mock
     private ICountryRepository countryRepository;
@@ -76,7 +76,8 @@ public class CountryServiceTest {
         assertEquals(countryDto.get(0).getName(),result.get(0).getName());
     }
 
-    //burada ben sunu test edıyorum eger daha once kullanılmıs code varsa o ulke aynı code u kullanamaz benı daha once kayıtlı var mı uyarısı calısıyor mu kontrolu
+    //burada ben sunu test edıyorum eger daha once kullanılmıs code varsa o ulke aynı code u kullanamaz
+    // benı daha once kayıtlı var mı uyarısı calısıyor mu kontrolu
     @Test
     void insertCountry_Test_UlkeZatenVarsa_HataFirlatmali(){
         Country country = createFakeCountry("TR","Türkiye");
@@ -190,21 +191,19 @@ public class CountryServiceTest {
 
     @Test
     void convertCountry_NameUpdate_Test(){
-// GIVEN
+
         String code = "TR";
         String name = "TürkiyeYeni";
         Country country = createFakeCountry("TR","Türkiye");
         CountryDto dto = createFakeCountryDto(code, name);
 
-        // Mock yapılandırmaları
         Mockito.when(countryRepository.findByCode(code)).thenReturn(Optional.of(country));
         Mockito.when(countryRepository.save(country)).thenReturn(country);
         Mockito.when(countryMapper.fromCountry(country)).thenReturn(dto);
 
-        // WHEN
+
         CountryDto result = countryService.convertCountry(code, name);
 
-        // THEN
         assertEquals(name, result.getName());
         assertEquals(code, result.getCode());
 
@@ -397,33 +396,55 @@ public class CountryServiceTest {
     }
 
 
-//    @Test
-//    void getPhoneAscending_Success_Test(){
-//        // GIVEN
-//        List<CountryDto> phoneCodes = List.of("+1", "+44", "+90");
-//        Mockito.when(countryRepository.phoneByAscending()).thenReturn(phoneCodes);
-//
-//        // WHEN
-//        List<CountryDto> result = countryService.getPhoneAscending();
-//
-//        // THEN
-//        assertEquals(3, result.size());
-//        assertEquals("+1", result.get(0)); // En küçük kodun başta olduğunu doğrula
-//    }
-//
-//    @Test
-//    void getPhoneDescending_Success_Test(){
-//        // GIVEN
-//        List<String> phoneCodes = List.of("+90", "+44", "+1");
-//        Mockito.when(countryRepository.phoneByDescending()).thenReturn(phoneCodes);
-//
-//        // WHEN
-//        List<String> result = countryService.getPhoneDescending();
-//
-//        // THEN
-//        assertEquals(3, result.size());
-//        assertEquals("+90", result.get(0)); // En büyük kodun başta olduğunu doğrula
-//    }
+    @Test
+    void getPhoneAscending_Success_Test(){
+
+        Country c1=createFakeCountry("TR","Türkiye");
+        c1.setPhone(1);
+        Country c2=createFakeCountry("ER","TürkiyeYeni");
+        c2.setPhone(2);
+        List<Country>countries=List.of(c1,c2);
+
+        CountryDto d1 = createFakeCountryDto("TR","Türkiye");
+        d1.setPhone(1);
+
+        CountryDto d2 =createFakeCountryDto("ER","TürkiyeYeni");
+        d2.setPhone(2);
+
+        List<CountryDto> dtos = List.of(d1, d2);
+        Mockito.when(countryRepository.phoneByAscending()).thenReturn(countries);
+        Mockito.when(countryMapper.fromCountryList(countries)).thenReturn(dtos);
+
+        List<CountryDto> result = countryService.getPhoneAscending();
+
+        assertEquals(1, result.get(0).getPhone(), "İlk eleman en küçük telefon koduna sahip olmalı");
+        assertEquals(2, result.get(1).getPhone(), "İkinci eleman bir sonraki kod olmalı");
+
+    }
+
+    @Test
+    void getPhoneDescending_Success_Test(){
+        Country c1=createFakeCountry("TR","Türkiye");
+        c1.setPhone(2);
+        Country c2=createFakeCountry("ER","TürkiyeYeni");
+        c2.setPhone(1);
+        List<Country>countries=List.of(c1,c2);
+
+        CountryDto d1 = createFakeCountryDto("TR","Türkiye");
+        d1.setPhone(2);
+
+        CountryDto d2 =createFakeCountryDto("ER","TürkiyeYeni");
+        d2.setPhone(1);
+
+        List<CountryDto> dtos = List.of(d1, d2);
+        Mockito.when(countryRepository.phoneByDescending()).thenReturn(countries);
+        Mockito.when(countryMapper.fromCountryList(countries)).thenReturn(dtos);
+
+        List<CountryDto> result = countryService.getPhoneDescending();
+
+        assertEquals(2, result.get(0).getPhone(), "İlk eleman büyük telefon numarasına sahip olmalı");
+        assertEquals(1, result.get(1).getPhone(), "İkinci eleman bir sonraki kod olmalı");
+    }
 
     @Test
     void getPhone_NotFound_Test(){

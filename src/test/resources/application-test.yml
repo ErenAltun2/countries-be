@@ -1,0 +1,16 @@
+spring:
+  datasource:
+    # URL'den sorunlu olan NOT_FIXED_BUILD kısmını kaldırdık
+    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  h2:
+    console:
+      enabled: true
+  jpa:
+    # H2 Dialect'i açıkça belirtmek iyi bir pratiktir
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
